@@ -10,12 +10,6 @@ export function OutputBlock({ lines }: Props) {
     <>
       {lines.map((line, i) => {
         switch (line.kind) {
-          case 'blank':
-            return (
-              <div className="out-line" key={i}>
-                &nbsp;
-              </div>
-            )
           case 'rule':
             return <div className="out-rule" key={i} />
           case 'mark':
@@ -59,6 +53,32 @@ export function OutputBlock({ lines }: Props) {
                   </span>
                 ))}
               </div>
+            )
+          case 'heading':
+            return (
+              <div className="out-heading" key={i}>
+                {line.segments.map((seg, si) => (
+                  <span
+                    key={si}
+                    className={seg.tone ? `tone-${seg.tone}` : undefined}
+                  >
+                    {seg.text}
+                  </span>
+                ))}
+              </div>
+            )
+          case 'p':
+            return (
+              <p className="out-p" key={i}>
+                {line.segments.map((seg, si) => (
+                  <span
+                    key={si}
+                    className={seg.tone ? `tone-${seg.tone}` : undefined}
+                  >
+                    {seg.text}
+                  </span>
+                ))}
+              </p>
             )
           default:
             return null

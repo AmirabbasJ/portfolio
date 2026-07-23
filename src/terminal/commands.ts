@@ -10,8 +10,9 @@ export type OutputSegment = {
 
 export type OutputLine =
   | { kind: 'text'; segments: OutputSegment[] }
+  | { kind: 'heading'; segments: OutputSegment[] }
+  | { kind: 'p'; segments: OutputSegment[] }
   | { kind: 'cmd'; text: string }
-  | { kind: 'blank' }
   | { kind: 'badge'; text: string }
   | { kind: 'rule' }
   | { kind: 'kv'; key: string; value: string }
@@ -89,35 +90,22 @@ function text(raw: string, tone?: OutputTone): OutputLine {
   return { kind: 'text', segments: [{ text: raw, tone }] };
 }
 
-function mixed(...segments: OutputSegment[]): OutputLine {
-  return { kind: 'text', segments };
+function heading(raw: string, tone?: OutputTone): OutputLine {
+  return { kind: 'heading', segments: [{ text: raw, tone }] };
 }
 
-function wrap(raw: string, width = 80): string[] {
-  const words = raw.split(/\s+/);
-  const lines: string[] = [];
-  let current = '';
-  for (const word of words) {
-    if (!current) {
-      current = word;
-      continue;
-    }
-    if (`${current} ${word}`.length > width) {
-      lines.push(current);
-      current = word;
-    } else {
-      current = `${current} ${word}`;
-    }
-  }
-  if (current) lines.push(current);
-  return lines;
+function para(raw: string, tone?: OutputTone): OutputLine {
+  return { kind: 'p', segments: [{ text: raw, tone }] };
+}
+
+function mixed(...segments: OutputSegment[]): OutputLine {
+  return { kind: 'text', segments };
 }
 
 function help(): CommandResult {
   return {
     lines: [
       text('Available commands', 'dim'),
-      { kind: 'blank' },
       text('  help                   Show this list'),
       text('  whoami                 Bio'),
       text('  experience | exp       Work history (exp <company>)'),
@@ -128,7 +116,6 @@ function help(): CommandResult {
       text('  info                   System summary'),
       text('  ls                     Virtual filesystem'),
       text('  clear                  Clear scrollback'),
-      { kind: 'blank' },
       {
         kind: 'tip',
         text: '← → modules when input empty · Tab autocomplete · Ctrl+L clear',
@@ -139,20 +126,12 @@ function help(): CommandResult {
 
 function aboutCmd(): CommandResult {
   return {
-    lines: [
-      { kind: 'blank' },
-      {
-        kind: 'text',
-        segments: [{ text: profile.summary }],
-      },
-      { kind: 'blank' },
-    ],
+    lines: [para(profile.summary)],
   };
 }
 
 export function whoamiLines(): OutputLine[] {
   return [
-    { kind: 'blank' },
     mixed(
       { text: '  Frontend engineer who ships. ' },
       { text: profile.name, tone: 'accent' },
@@ -164,14 +143,12 @@ export function whoamiLines(): OutputLine[] {
     text(
       '  Currently freelancing on LinkDent — a B2B dental platform for clinics & practitioners.',
     ),
-    { kind: 'blank' },
   ];
 }
 
 export function statusLines(): OutputLine[] {
   return [
     { kind: 'cmd', text: 'cat status.txt' },
-    { kind: 'blank' },
     { kind: 'kv', key: 'LOCATION', value: 'Remote · IR / open worldwide' },
     {
       kind: 'kv',
@@ -179,12 +156,10 @@ export function statusLines(): OutputLine[] {
       value: 'React · Next.js · TypeScript',
     },
     { kind: 'kv', key: 'CONTACT', value: profile.contact.email },
-    { kind: 'blank' },
     {
       kind: 'badge',
       text: 'OPEN TO WORK — FREELANCE + FULL-TIME',
     },
-    { kind: 'blank' },
   ];
 }
 
@@ -194,9 +169,7 @@ function experienceCmd(args: string[]): CommandResult {
   if (!query) {
     const lines: OutputLine[] = [
       { kind: 'cmd', text: 'ls -la /work/' },
-      { kind: 'blank' },
       text(`${experience.length} entries — run: experience <company>`, 'dim'),
-      { kind: 'blank' },
     ];
     experience.forEach((job, i) => {
       const n = String(i + 1).padStart(2, '0');
@@ -207,7 +180,6 @@ function experienceCmd(args: string[]): CommandResult {
           { text: `  ${job.role}`, tone: 'dim' },
         ),
         text(`    ${job.location} · ${job.period}`, 'dim'),
-        { kind: 'blank' },
       );
     });
     return { lines, module: 'work' };
@@ -231,18 +203,14 @@ function experienceCmd(args: string[]): CommandResult {
   return {
     lines: [
       { kind: 'cmd', text: `cat ${job.company.toUpperCase()}.exp` },
-      { kind: 'blank' },
       text(job.company.toUpperCase(), 'accent'),
       text(`${job.role} · ${job.location}`),
-      text(job.period, 'dim'),
-      { kind: 'blank' },
-      ...wrap(job.summary).map((l) => text(l)),
-      { kind: 'blank' },
-      text('TECH', 'dim'),
-      text( job.tech.join(' · ')),
-      { kind: 'blank' },
-      text('// highlights', 'dim'),
-      ...job.highlights.flatMap((h) => wrap(`  › ${h}`).map((l) => text(l))),
+      heading(job.period, 'dim'),
+      para(job.summary),
+      heading('TECH', 'dim'),
+      text(job.tech.join(' · ')),
+      heading('HIGHLIGHTS', 'dim'),
+      ...job.highlights.map((h) => para(`› ${h}`)),
     ],
     module: 'work',
   };
@@ -250,9 +218,7 @@ function experienceCmd(args: string[]): CommandResult {
 
 function skillsCmd(args: string[]): CommandResult {
   const query = args.join(' ').trim().toLowerCase();
-  const lines: OutputLine[] = [
-    { kind: 'blank' },
-  ];
+  const lines: OutputLine[] = [];
 
   const groups = query
     ? skillGroups.filter((g) => g.label.toLowerCase().includes(query))
@@ -268,9 +234,8 @@ function skillsCmd(args: string[]): CommandResult {
   }
 
   for (const group of groups) {
-    lines.push(text(group.label.toUpperCase(), 'accent'));
+    lines.push(heading(group.label.toUpperCase(), 'accent'));
     lines.push(text(`  ${group.items.join(' · ')}`));
-    lines.push({ kind: 'blank' });
   }
 
   return { lines, module: 'about' };
@@ -281,11 +246,9 @@ function contactCmd(): CommandResult {
   return {
     lines: [
       { kind: 'cmd', text: 'cat contact.md' },
-      { kind: 'blank' },
       { kind: 'kv', key: 'EMAIL', value: contact.email },
       { kind: 'kv', key: 'GITHUB', value: `@${contact.github}` },
       { kind: 'kv', key: 'URL', value: contact.githubUrl },
-      { kind: 'blank' },
       text('Run: github   to open the profile', 'dim'),
     ],
     module: 'contact',
@@ -319,9 +282,7 @@ function ls(currDir: string): CommandResult {
   return {
     lines: [
       { kind: 'cmd', text: 'ls -la' },
-      { kind: 'blank' },
       ...(dirFiles?.map((f) => text(`-rw-  ${f.fileName}`)) ?? []),
-      { kind: 'blank' },
       text(`cd <module> or click the nav below`, 'dim'),
     ],
   };

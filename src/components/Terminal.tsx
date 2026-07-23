@@ -33,7 +33,6 @@ function moduleSeed(id: ModuleId): OutputLine[] {
     case 'work': {
       const lines: OutputLine[] = [
         { kind: 'cmd', text: 'ls -la /work/' },
-        { kind: 'blank' },
         {
           kind: 'text',
           segments: [
@@ -43,7 +42,6 @@ function moduleSeed(id: ModuleId): OutputLine[] {
             },
           ],
         },
-        { kind: 'blank' },
       ];
       experience.forEach((job, i) => {
         const n = String(i + 1).padStart(2, '0');
@@ -62,7 +60,6 @@ function moduleSeed(id: ModuleId): OutputLine[] {
               { text: `    ${job.location} · ${job.period}`, tone: 'dim' },
             ],
           },
-          { kind: 'blank' },
         );
       });
       return lines;
@@ -70,12 +67,10 @@ function moduleSeed(id: ModuleId): OutputLine[] {
     case 'about':
       return [
         { kind: 'cmd', text: 'cat about.txt' },
-        { kind: 'blank' },
         {
-          kind: 'text',
+          kind: 'p',
           segments: [{ text: profile.summary }],
         },
-        { kind: 'blank' },
         {
           kind: 'tip',
           text: 'type skills  or  skills testing  for the inventory',
@@ -84,17 +79,14 @@ function moduleSeed(id: ModuleId): OutputLine[] {
     case 'contact':
       return [
         { kind: 'cmd', text: 'cat contact.md' },
-        { kind: 'blank' },
         { kind: 'kv', key: 'EMAIL', value: profile.contact.email },
         { kind: 'kv', key: 'PHONE', value: profile.contact.phone },
         { kind: 'kv', key: 'GITHUB', value: `@${profile.contact.github}` },
         { kind: 'kv', key: 'URL', value: profile.contact.githubUrl },
-        { kind: 'blank' },
         {
           kind: 'badge',
           text: 'SIGNAL OPEN — DROP A LINE',
         },
-        { kind: 'blank' },
         {
           kind: 'tip',
           text: 'type github  to open the profile in a new tab',
@@ -154,9 +146,6 @@ export function Terminal() {
     const fromHash = window.location.hash.replace('#', '') as ModuleId;
     if (modules.some((m) => m.id === fromHash) && fromHash !== 'home')
       goModule(fromHash);
-
-    // only on mount
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const submit =   useCallback(
