@@ -50,10 +50,10 @@ const COMMANDS = [
 const fileSystem = {
   home: [{ fileName: 'status.txt', content: statusLines() }],
   work: [
-    { fileName: 'dropp.md', content: experienceCmd(['dropp']) },
-    { fileName: 'linkdent.md', content: experienceCmd(['linkdent']) },
-    { fileName: 'startdone.md', content: experienceCmd(['startdone']) },
-    { fileName: 'thepersa.md', content: experienceCmd(['thepersa']) },
+    { fileName: 'DROPP.md', content: experienceCmd(['dropp']) },
+    { fileName: 'LINKDENT.md', content: experienceCmd(['linkdent']) },
+    { fileName: 'STARTDONE.md', content: experienceCmd(['startdone']) },
+    { fileName: 'THEPERSA.md', content: experienceCmd(['thepersa']) },
   ],
   about: [
     { fileName: 'about.txt', content: aboutCmd() },
@@ -66,20 +66,35 @@ function getCatCompletions(arg: string, currDir: string): string[] {
   const dirFiles = fileSystem[currDir as keyof typeof fileSystem];
   return (
     dirFiles
-      ?.filter((f) => f.fileName.startsWith(arg))
+      ?.filter((f) => f.fileName.toLowerCase().startsWith(arg))
       .map((f) => f.fileName) ?? []
   );
 }
 
+function getExpCompletions(arg: string): string[] {
+  return getCatCompletions(arg, 'work').map(f => f.split('.')[0])
+}
+
+function getSkillsCompletions(arg: string): string[] {
+  return skillGroups.filter((g) => g.label.toLowerCase().startsWith(arg)).map(g => g.label)
+}
+
+
 function getCdCompletions(arg: string): string[] {
-  return modules.filter((m) => m.id.startsWith(arg)).map((m) => m.id);
+  return modules.filter((m) => m.id.toLowerCase().startsWith(arg)).map((m) => m.id);
 }
 
 export function getCompletions(partials: string[], currDir: string): string[] {
   const [q, ...args] = partials;
   if (!q) return [...COMMANDS];
-  if (q === 'cat') {
+  if (q === 'cat' ) {
     return getCatCompletions(args[0], currDir).map((file) => `${q} ${file}`);
+  }
+  if(q === 'exp' || q === 'experience'){
+    return getExpCompletions(args[0]).map((exp) => `${q} ${exp}`);
+  }
+  if(q === 'skills' || q === 'skill'){
+    return getSkillsCompletions(args[0]).map((skill) => `${q} ${skill}`);
   }
   if (q === 'cd') {
     return getCdCompletions(args[0]).map((module) => `${q} ${module}`);
@@ -209,7 +224,6 @@ export function experienceCmd(args: string[]): CommandResult {
 
   return {
     lines: [
-      { kind: 'cmd', text: `cat ${job.company.toUpperCase()}.exp` },
       text(job.company.toUpperCase(), 'accent'),
       text(`${job.role} · ${job.location}`),
       heading(job.period, 'dim'),
@@ -255,7 +269,6 @@ export function contactCmd(): CommandResult {
       { kind: 'kv', key: 'EMAIL', value: contact.email },
       { kind: 'kv', key: 'GITHUB', value: `@${contact.github}` },
       { kind: 'kv', key: 'URL', value: contact.githubUrl },
-      text('Run: github   to open the profile', 'dim'),
     ],
     module: 'contact',
   };
