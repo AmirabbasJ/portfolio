@@ -240,6 +240,15 @@ body {
   word-break: break-word;
 }
 
+.out-kv__link {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.out-kv__link:hover {
+  text-decoration: underline;
+}
+
 .out-badge {
   display: inline-flex;
   align-items: center;

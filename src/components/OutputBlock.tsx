@@ -32,7 +32,18 @@ export function OutputBlock({ lines }: Props) {
             return (
               <div className="out-kv" key={i}>
                 <span className="out-kv__k">{line.key}</span>
-                <span className="out-kv__v">{line.value}</span>
+                {line.href ? (
+                  <a
+                    className="out-kv__v out-kv__link"
+                    href={line.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {line.value}
+                  </a>
+                ) : (
+                  <span className="out-kv__v">{line.value}</span>
+                )}
               </div>
             )
           case 'tip':

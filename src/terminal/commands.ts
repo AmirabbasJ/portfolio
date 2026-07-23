@@ -15,7 +15,7 @@ export type OutputLine =
   | { kind: 'cmd'; text: string }
   | { kind: 'badge'; text: string }
   | { kind: 'rule' }
-  | { kind: 'kv'; key: string; value: string }
+  | { kind: 'kv'; key: string; value: string; href?: string }
   | { kind: 'tip'; text: string }
   | { kind: 'mark' };
 
@@ -37,6 +37,7 @@ const COMMANDS = [
   'exp',
   'skills',
   'github',
+  'linkedin',
   'fetch',
   'ls',
   'clear',
@@ -132,8 +133,9 @@ function help(): CommandResult {
       text('  experience | exp       Work history (exp <company>)'),
       text('  skills | skill         Tech inventory'),
       text('  status                 Live status block'),
-      text('  contact                Email / GitHub'),
+      text('  contact                Email / GitHub / LinkedIn'),
       text('  github | gh            Open GitHub'),
+      text('  linkedin | li          Open LinkedIn'),
       text('  info                   System summary'),
       text('  ls                     Virtual filesystem'),
       text('  clear                  Clear scrollback'),
@@ -267,8 +269,18 @@ export function contactCmd(): CommandResult {
   return {
     lines: [
       { kind: 'kv', key: 'EMAIL', value: contact.email },
-      { kind: 'kv', key: 'GITHUB', value: `@${contact.github}` },
-      { kind: 'kv', key: 'URL', value: contact.githubUrl },
+      {
+        kind: 'kv',
+        key: 'GITHUB',
+        value: contact.github,
+        href: contact.githubUrl,
+      },
+      {
+        kind: 'kv',
+        key: 'LINKEDIN',
+        value: contact.linkedin,
+        href: contact.linkedinUrl,
+      },
     ],
     module: 'contact',
   };
@@ -350,6 +362,12 @@ export function runCommand({
       return {
         lines: [text(`Opening ${profile.contact.githubUrl} …`, 'dim')],
         openUrl: profile.contact.githubUrl,
+      };
+    case 'linkedin':
+    case 'li':
+      return {
+        lines: [text(`Opening ${profile.contact.linkedinUrl} …`, 'dim')],
+        openUrl: profile.contact.linkedinUrl,
       };
     case 'info':
       return fetchCmd();

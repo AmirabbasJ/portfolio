@@ -7,6 +7,8 @@ export const profile = {
     email: 'amirabbasjalali82@gmail.com',
     github: 'AmirabbasJ',
     githubUrl: 'https://github.com/AmirabbasJ',
+    linkedin: 'amirabbas-jalali',
+    linkedinUrl: 'https://www.linkedin.com/in/amirabbas-jalali',
   },
 } as const
 

@@ -59,7 +59,7 @@ function moduleSeed(id: ModuleId): OutputLine[] {
         ...contactCmd().lines,
         {
           kind: 'tip',
-          text: 'type github  to open the profile in a new tab',
+          text: 'type github  or  linkedin  to open in a new tab',
         },
       ];
   }
