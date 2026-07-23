@@ -20,6 +20,10 @@ export function ParallaxBg() {
       target.current = { rx: -ny * MAX_DEG, ry: nx * MAX_DEG }
     }
 
+    const recenter = () => {
+      target.current = { rx: 0, ry: 0 }
+    }
+
     const tick = () => {
       const c = current.current
       const t = target.current
@@ -33,10 +37,14 @@ export function ParallaxBg() {
     }
 
     window.addEventListener('mousemove', onMove, { passive: true })
+    document.documentElement.addEventListener('mouseleave', recenter)
+    window.addEventListener('blur', recenter)
     raf = requestAnimationFrame(tick)
 
     return () => {
       window.removeEventListener('mousemove', onMove)
+      document.documentElement.removeEventListener('mouseleave', recenter)
+      window.removeEventListener('blur', recenter)
       cancelAnimationFrame(raf)
     }
   }, [])

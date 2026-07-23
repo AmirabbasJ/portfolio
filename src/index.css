@@ -44,7 +44,7 @@ body {
   z-index: 0;
   overflow: hidden;
   pointer-events: none;
-  perspective: 400px;
+  perspective: 600px;
   perspective-origin: 50% 50%;
 }
 
@@ -55,7 +55,7 @@ body {
   background-size: 55%;
   background-repeat: no-repeat;
   filter: blur(4px);
-  opacity: 0.5;
+  opacity: 0.3;
   transform-style: preserve-3d;
   will-change: transform;
 }
