@@ -23,7 +23,6 @@ export function ModuleNav({ active, onSelect }: ModuleNavProps) {
                 onClick={() => onSelect(mod.id)}
                 aria-current={isActive ? 'page' : undefined}
               >
-                {isActive ? '> ' : '  '}
                 /{mod.label}
               </button>
             </li>
