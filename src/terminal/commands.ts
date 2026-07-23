@@ -48,7 +48,7 @@ const COMMANDS = [
 ].toSorted();
 
 const fileSystem = {
-  home: [],
+  home: [{ fileName: 'status.txt', content: statusLines() }],
   work: [
     { fileName: 'dropp.md', content: experienceCmd(['dropp']) },
     { fileName: 'linkdent.md', content: experienceCmd(['linkdent']) },
@@ -56,15 +56,19 @@ const fileSystem = {
     { fileName: 'thepersa.md', content: experienceCmd(['thepersa']) },
   ],
   about: [
-    { fileName: 'about.md', content: aboutCmd() },
+    { fileName: 'about.txt', content: aboutCmd() },
     { fileName: 'skills.json', content: skillsCmd([]) },
   ],
   contact: [{ fileName: 'contact.md', content: contactCmd() }],
 };
 
-function getCatCompletions(arg: string, currDir: string): string[] {  
+function getCatCompletions(arg: string, currDir: string): string[] {
   const dirFiles = fileSystem[currDir as keyof typeof fileSystem];
- return dirFiles?.filter((f) => f.fileName.startsWith(arg)).map((f) => f.fileName) ?? [];
+  return (
+    dirFiles
+      ?.filter((f) => f.fileName.startsWith(arg))
+      .map((f) => f.fileName) ?? []
+  );
 }
 
 function getCdCompletions(arg: string): string[] {
@@ -74,16 +78,18 @@ function getCdCompletions(arg: string): string[] {
 export function getCompletions(partials: string[], currDir: string): string[] {
   const [q, ...args] = partials;
   if (!q) return [...COMMANDS];
-  if (q === 'cat'){
-     return getCatCompletions(args[0], currDir).map( file => `${q} ${file}`);
-    }
-  if (q === 'cd'){
-    return getCdCompletions(args[0]).map( module => `${q} ${module}`);
+  if (q === 'cat') {
+    return getCatCompletions(args[0], currDir).map((file) => `${q} ${file}`);
   }
-  
-  return args.length > 0 ? [] : COMMANDS.filter((c) => {
-   return c.startsWith(q)
-  });
+  if (q === 'cd') {
+    return getCdCompletions(args[0]).map((module) => `${q} ${module}`);
+  }
+
+  return args.length > 0
+    ? []
+    : COMMANDS.filter((c) => {
+        return c.startsWith(q);
+      });
 }
 
 function text(raw: string, tone?: OutputTone): OutputLine {
@@ -124,7 +130,7 @@ function help(): CommandResult {
   };
 }
 
-function aboutCmd(): CommandResult {
+export function aboutCmd(): CommandResult {
   return {
     lines: [para(profile.summary)],
   };
@@ -146,38 +152,39 @@ export function whoamiLines(): OutputLine[] {
   ];
 }
 
-export function statusLines(): OutputLine[] {
-  return [
-    { kind: 'cmd', text: 'cat status.txt' },
-    { kind: 'kv', key: 'LOCATION', value: 'Remote · IR / open worldwide' },
-    {
-      kind: 'kv',
-      key: 'FOCUS',
-      value: 'React · Next.js · TypeScript',
-    },
-    { kind: 'kv', key: 'CONTACT', value: profile.contact.email },
-    {
-      kind: 'badge',
-      text: 'OPEN TO WORK — FREELANCE + FULL-TIME',
-    },
-  ];
+export function statusLines(): CommandResult {
+  return {
+    lines: [
+      { kind: 'kv', key: 'LOCATION', value: 'Remote · IR / open worldwide' },
+      {
+        kind: 'kv',
+        key: 'FOCUS',
+        value: 'React · Next.js · TypeScript',
+      },
+      { kind: 'kv', key: 'CONTACT', value: profile.contact.email },
+      {
+        kind: 'badge',
+        text: 'OPEN TO WORK — FREELANCE + FULL-TIME',
+      },
+    ],
+    module: 'home',
+  };
 }
 
-function experienceCmd(args: string[]): CommandResult {
+export function experienceCmd(args: string[]): CommandResult {
   const query = args.join(' ').trim().toLowerCase();
 
   if (!query) {
     const lines: OutputLine[] = [
-      { kind: 'cmd', text: 'ls -la /work/' },
-      text(`${experience.length} entries — run: experience <company>`, 'dim'),
+      text(`${experience.length} entries — type: experience <company>`, 'dim'),
     ];
     experience.forEach((job, i) => {
       const n = String(i + 1).padStart(2, '0');
       lines.push(
         mixed(
           { text: `${n}  `, tone: 'dim' },
-          { text: job.company.toUpperCase(), tone: 'accent' },
-          { text: `  ${job.role}`, tone: 'dim' },
+          { text: `${job.company.toUpperCase()}`, tone: 'accent' },
+          { text: `  ${job.role}` },
         ),
         text(`    ${job.location} · ${job.period}`, 'dim'),
       );
@@ -241,11 +248,10 @@ function skillsCmd(args: string[]): CommandResult {
   return { lines, module: 'about' };
 }
 
-function contactCmd(): CommandResult {
+export function contactCmd(): CommandResult {
   const { contact } = profile;
   return {
     lines: [
-      { kind: 'cmd', text: 'cat contact.md' },
       { kind: 'kv', key: 'EMAIL', value: contact.email },
       { kind: 'kv', key: 'GITHUB', value: `@${contact.github}` },
       { kind: 'kv', key: 'URL', value: contact.githubUrl },
@@ -325,7 +331,7 @@ export function runCommand({
     case 'skill':
       return skillsCmd(args);
     case 'status':
-      return { lines: statusLines() };
+      return { lines: statusLines().lines };
     case 'github':
     case 'gh':
       return {
@@ -335,7 +341,9 @@ export function runCommand({
     case 'info':
       return fetchCmd();
     case 'ls':
-      return args.length > 0 ?  { lines: [text("ls doesn't work with arguments")] } : ls(currDir);
+      return args.length > 0
+        ? { lines: [text("ls doesn't work with arguments")] }
+        : ls(currDir);
     case 'cd': {
       const target = (args[0] ?? '').replace(/^\.\//, '').replace(/\/$/, '');
       const mod = modules.find(

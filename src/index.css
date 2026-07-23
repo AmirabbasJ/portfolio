@@ -91,21 +91,22 @@ body {
 /* ——— System header ——— */
 .sys-header {
   flex: 0 0 auto;
-  padding: 0.7rem 0 0.65rem;
+  padding: 0.55rem 0 0.5rem;
   font-size: clamp(0.62rem, 1.45vw, 0.72rem);
   letter-spacing: 0.04em;
 }
 
 .sys-grid {
   display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
-  gap: 0.35rem 0.85rem;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.25rem 0.85rem;
+  align-items: start;
 }
 
 .sys-cell {
   display: flex;
   flex-direction: column;
-  gap: 0.1rem;
+  gap: 0.08rem;
   min-width: 0;
 }
 
@@ -121,6 +122,16 @@ body {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.sys-value--emphasis {
+  letter-spacing: 0.05em;
+}
+
+.sys-value--clock {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.08em;
+  color: var(--accent-bright);
 }
 
 .sys-value--ok {
@@ -179,7 +190,7 @@ body {
 .out-line--cmd {
   display: flex;
   gap: 0.55rem;
-  margin: 0 0 12px;
+  margin: 16px 0;
 }
 
 .out-dollar {
@@ -409,7 +420,7 @@ body {
 @media (max-width: 640px) {
   .sys-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 0.45rem 0.75rem;
+    gap: 0.35rem 0.65rem;
   }
 
   .out-kv {

@@ -6,8 +6,10 @@ import {
   useState,
   type KeyboardEvent,
 } from 'react';
-import { experience, profile } from '../data/resume';
 import {
+  aboutCmd,
+  contactCmd,
+  experienceCmd,
   getCompletions,
   runCommand,
   statusLines,
@@ -29,48 +31,23 @@ const nextId = () => ++lineId;
 function moduleSeed(id: ModuleId): OutputLine[] {
   switch (id) {
     case 'home':
-      return [{ kind: 'mark' }, ...whoamiLines(), ...statusLines()];
+      return [
+        { kind: 'mark' },
+        ...whoamiLines(),
+        { kind: 'cmd', text: 'cat status.txt' },
+        ...statusLines().lines,
+      ];
     case 'work': {
       const lines: OutputLine[] = [
-        { kind: 'cmd', text: 'ls -la /work/' },
-        {
-          kind: 'text',
-          segments: [
-            {
-              text: `${experience.length} entries — type: experience <company>`,
-              tone: 'dim',
-            },
-          ],
-        },
+        { kind: 'cmd', text: 'experience' },
+        ...experienceCmd([]).lines,
       ];
-      experience.forEach((job, i) => {
-        const n = String(i + 1).padStart(2, '0');
-        lines.push(
-          {
-            kind: 'text',
-            segments: [
-              { text: `${n}  `, tone: 'dim' },
-              { text: `${job.company.toUpperCase()}.MD`, tone: 'accent' },
-              { text: `  ${job.role}` },
-            ],
-          },
-          {
-            kind: 'text',
-            segments: [
-              { text: `    ${job.location} · ${job.period}`, tone: 'dim' },
-            ],
-          },
-        );
-      });
       return lines;
     }
     case 'about':
       return [
         { kind: 'cmd', text: 'cat about.txt' },
-        {
-          kind: 'p',
-          segments: [{ text: profile.summary }],
-        },
+        ...aboutCmd().lines,
         {
           kind: 'tip',
           text: 'type skills  or  skills testing  for the inventory',
@@ -79,14 +56,7 @@ function moduleSeed(id: ModuleId): OutputLine[] {
     case 'contact':
       return [
         { kind: 'cmd', text: 'cat contact.md' },
-        { kind: 'kv', key: 'EMAIL', value: profile.contact.email },
-        { kind: 'kv', key: 'PHONE', value: profile.contact.phone },
-        { kind: 'kv', key: 'GITHUB', value: `@${profile.contact.github}` },
-        { kind: 'kv', key: 'URL', value: profile.contact.githubUrl },
-        {
-          kind: 'badge',
-          text: 'SIGNAL OPEN — DROP A LINE',
-        },
+        ...contactCmd().lines,
         {
           kind: 'tip',
           text: 'type github  to open the profile in a new tab',
@@ -148,7 +118,7 @@ export function Terminal() {
       goModule(fromHash);
   }, []);
 
-  const submit =   useCallback(
+  const submit = useCallback(
     (raw: string) => {
       const value = raw.trim();
       if (!value.trim()) {
@@ -161,7 +131,11 @@ export function Terminal() {
       setHistIndex(null);
       setDraft('');
 
-      const result = runCommand({input: value, history: nextHistory, currDir: module});
+      const result = runCommand({
+        input: value,
+        history: nextHistory,
+        currDir: module,
+      });
 
       if (result.module && result.clear) {
         stickModeRef.current = 'top';
@@ -248,9 +222,10 @@ export function Terminal() {
     if (e.key === 'Tab') {
       e.preventDefault();
       setAutoComplete('');
-      const parts = input.split(/\s+/).map(i => i.trim().toLowerCase());
+      const parts = input.split(/\s+/).map((i) => i.trim().toLowerCase());
+      if(parts.length > 2) return;
       const matches = getCompletions(parts, module);
-      if (matches.length === 1) {        
+      if (matches.length === 1) {
         setInput(`${matches[0]} `);
       } else if (matches.length > 1) {
         stickModeRef.current = 'bottom';
@@ -262,7 +237,14 @@ export function Terminal() {
             lines: [
               {
                 kind: 'text',
-                segments: [{ text: matches.map(m => m.replace(parts[0] ?? '', '')).join('   '), tone: 'dim' }],
+                segments: [
+                  {
+                    text: matches
+                      .map((m) => m.replace(parts[0] ?? '', ''))
+                      .join('   '),
+                    tone: 'dim',
+                  },
+                ],
               },
             ],
           },
@@ -348,18 +330,22 @@ export function Terminal() {
             value={input}
             placeholder={placeholder}
             onChange={(e) => {
-              const v = e.target.value
+              const v = e.target.value;
 
               setInput(v);
               if (histIndex !== null) {
                 setHistIndex(null);
                 setDraft(v);
               }
-              if(v.trim() === '') return;
-              const p = v;
-              const matches = getCompletions(p.split(/\s+/).map(i => i.trim().toLowerCase()), module);
+              if (v.trim() === '') return;
+              const p = v.split(/\s+/).map((i) => i.trim().toLowerCase());
+              if(p.length > 2) return;
+              const matches = getCompletions(
+                p,
+                module,
+              );
               if (matches.length >= 1) {
-                setAutoComplete(matches[0].replace(p ?? '', '').trim());
+                setAutoComplete(matches[0].replace(v ?? '', '').trim());
               } else {
                 setAutoComplete('');
               }

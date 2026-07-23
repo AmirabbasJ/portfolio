@@ -10,23 +10,31 @@ function formatSessionUptime(now = Date.now()): string {
   return `${hours}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`
 }
 
-function formatDateParts(now = new Date()) {
-  const year = String(now.getFullYear())
-  const day = now
-    .toLocaleString('en-US', { month: 'short', day: '2-digit' })
+function formatClock(now = new Date()) {
+  const date = now
+    .toLocaleString('en-US', {
+      weekday: 'short',
+      month: 'short',
+      day: '2-digit',
+    })
     .toUpperCase()
-  return { year, day }
+  const time = [
+    String(now.getHours()).padStart(2, '0'),
+    String(now.getMinutes()).padStart(2, '0'),
+    String(now.getSeconds()).padStart(2, '0'),
+  ].join(':')
+  return { date, time }
 }
 
 export function SystemHeader() {
+  const [clock, setClock] = useState(() => formatClock())
   const [uptime, setUptime] = useState(() => formatSessionUptime())
-  const [date, setDate] = useState(() => formatDateParts())
 
   useEffect(() => {
     const id = window.setInterval(() => {
       const now = new Date()
+      setClock(formatClock(now))
       setUptime(formatSessionUptime(now.getTime()))
-      setDate(formatDateParts(now))
     }, 1000)
     return () => window.clearInterval(id)
   }, [])
@@ -35,8 +43,12 @@ export function SystemHeader() {
     <header className="sys-header">
       <div className="sys-grid">
         <div className="sys-cell">
-          <span className="sys-label">{date.year}</span>
-          <span className="sys-value">{date.day}</span>
+          <span className="sys-label">DATE</span>
+          <span className="sys-value sys-value--emphasis">{clock.date}</span>
+        </div>
+        <div className="sys-cell">
+          <span className="sys-label">TIME</span>
+          <span className="sys-value sys-value--clock">{clock.time}</span>
         </div>
         <div className="sys-cell">
           <span className="sys-label">UPTIME</span>
@@ -49,14 +61,6 @@ export function SystemHeader() {
         <div className="sys-cell">
           <span className="sys-label">STATE</span>
           <span className="sys-value sys-value--ok">ONLINE</span>
-        </div>
-        <div className="sys-cell">
-          <span className="sys-label">IPv4</span>
-          <span className="sys-value">41.72.199.38</span>
-        </div>
-        <div className="sys-cell">
-          <span className="sys-label">PING</span>
-          <span className="sys-value">87ms</span>
         </div>
       </div>
     </header>
