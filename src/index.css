@@ -1,0 +1,380 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+:root {
+  --bg: #1c1b2d;
+  --bg-deep: #151422;
+  --text: #f4f4fb;
+  --dim: #6e6e8c;
+  --muted: #9a9ab8;
+  --accent: #c1c1e0;
+  --accent-bright: #e4e4f5;
+  --accent-dim: #8a8ab0;
+  --warn: #d4b08c;
+  --error: #e08a9a;
+  --line: #2e2d42;
+  --badge-bg: rgba(193, 193, 224, 0.06);
+  --font:
+    'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  color-scheme: dark;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font);
+  background:
+    radial-gradient(900px 480px at 50% -20%, #2a2840 0%, transparent 55%),
+    var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+}
+
+.os {
+  min-height: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 0 clamp(1rem, 4vw, 2rem);
+}
+
+.os-rule {
+  height: 1px;
+  background: var(--line);
+  flex: 0 0 auto;
+}
+
+/* ——— System header ——— */
+.sys-header {
+  flex: 0 0 auto;
+  padding: 0.7rem 0 0.65rem;
+  font-size: clamp(0.62rem, 1.45vw, 0.72rem);
+  letter-spacing: 0.04em;
+}
+
+.sys-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 0.35rem 0.85rem;
+}
+
+.sys-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+}
+
+.sys-label {
+  color: var(--dim);
+  font-size: 0.9em;
+  letter-spacing: 0.08em;
+}
+
+.sys-value {
+  color: var(--text);
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sys-value--ok {
+  color: var(--accent);
+}
+
+.sys-value--soft {
+  text-transform: none;
+  letter-spacing: 0.02em;
+}
+
+/* ——— Main ——— */
+.os-main {
+  flex: 1;
+  min-height: 0;
+  cursor: text;
+  position: relative;
+}
+
+.os-scroll {
+  height: 100%;
+  overflow-y: auto;
+  overflow-anchor: none;
+  padding: 1.4rem 0 1.6rem;
+  font-size: clamp(0.8rem, 1.7vw, 0.9rem);
+  line-height: 1.55;
+  scrollbar-width: thin;
+  scrollbar-color: #3a3950 transparent;
+}
+
+.out-line {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.out-line--cmd {
+  display: flex;
+  gap: 0.55rem;
+  margin-top: 0.35rem;
+}
+
+.out-dollar {
+  color: var(--accent);
+  font-weight: 500;
+  user-select: none;
+}
+
+.out-mark {
+  margin: 0.15rem 0 1.1rem;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.out-mark--ascii {
+  margin: 0.15rem 0 1.1rem;
+  line-height: 1.15;
+  font-size: clamp(6px, 1.15vw, 11px);
+  font-family: var(--font);
+  white-space: pre;
+  color: var(--accent);
+  user-select: none;
+  overflow: hidden;
+  overflow-x: auto;
+}
+
+.out-rule {
+  height: 1px;
+  background: var(--line);
+  margin: 0.75rem 0;
+}
+
+.out-kv {
+  display: grid;
+  grid-template-columns: 9ch 1fr;
+  gap: 1rem;
+  padding: 0.1rem 0;
+}
+
+.out-kv__k {
+  color: var(--dim);
+  letter-spacing: 0.04em;
+}
+
+.out-kv__v {
+  color: var(--text);
+  word-break: break-word;
+}
+
+.out-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  margin: 0.35rem 0;
+  padding: 0.55rem 0.85rem;
+  border: 1px solid var(--accent-dim);
+  background: var(--badge-bg);
+  color: var(--accent-bright);
+  font-size: 0.78em;
+  letter-spacing: 0.04em;
+  box-shadow: 0 0 28px rgba(193, 193, 224, 0.1);
+}
+
+.out-badge__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 10px var(--accent);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+
+.out-tip {
+  margin-top: 0.75rem;
+  color: var(--dim);
+  font-size: 0.92em;
+}
+
+.tone-dim {
+  color: var(--dim);
+}
+.tone-accent {
+  color: var(--accent);
+}
+.tone-error {
+  color: var(--error);
+}
+.tone-label {
+  color: var(--muted);
+}
+.tone-warn {
+  color: var(--warn);
+}
+
+/* ——— Input ——— */
+.os-input {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: baseline;
+  gap: 0.65rem;
+  padding: 0.95rem 0;
+  font-size: clamp(0.8rem, 1.7vw, 0.9rem);
+  cursor: text;
+}
+
+.os-input__prompt {
+  flex: 0 0 auto;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.term-input-wrap {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  display: inline-grid;
+}
+
+.term-input-wrap > * {
+  grid-area: 1 / 1;
+}
+
+.term-ghost {
+  white-space: pre-wrap;
+  word-break: break-word;
+  pointer-events: none;
+  color: var(--text);
+}
+
+.term-placeholder {
+  position: absolute;
+  color: var(--dim);
+}
+
+.term-input {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: transparent;
+  caret-color: transparent;
+  font: inherit;
+  line-height: inherit;
+}
+
+.term-input::placeholder {
+  color: transparent;
+}
+
+.term-caret {
+  display: inline-block;
+  width: 0.55ch;
+  height: 1.05em;
+  margin-left: 1px;
+  vertical-align: text-bottom;
+  background: var(--accent-bright);
+  animation: blink 1.05s steps(1) infinite;
+}
+
+@keyframes blink {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+
+/* ——— Module nav ——— */
+.mod-nav {
+  flex: 0 0 auto;
+  padding: 0.85rem 0 1.25rem;
+  font-size: clamp(0.68rem, 1.6vw, 0.78rem);
+}
+
+.mod-nav__hint {
+  margin: 0 0 0.65rem;
+  color: var(--dim);
+}
+
+.mod-nav__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.5rem;
+}
+
+.mod-nav__item {
+  font: inherit;
+  border: 0;
+  background: transparent;
+  color: var(--dim);
+  cursor: pointer;
+  padding: 0.35rem 0.55rem;
+  letter-spacing: 0.03em;
+  transition:
+    color 0.12s ease,
+    background 0.12s ease;
+}
+
+.mod-nav__item:hover {
+  color: var(--text);
+}
+
+.mod-nav__item.is-active {
+  color: var(--bg-deep);
+  background: var(--accent);
+  font-weight: 500;
+}
+
+@media (max-width: 640px) {
+  .sys-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.45rem 0.75rem;
+  }
+
+  .out-kv {
+    grid-template-columns: 1fr;
+    gap: 0.1rem;
+    margin-bottom: 0.45rem;
+  }
+
+  .mod-nav__list {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .term-caret,
+  .out-badge__dot {
+    animation: none;
+  }
+}
