@@ -42,7 +42,8 @@ const COMMANDS = [
   'cls',
   'history',
   'status',
-] as const
+  'cd',
+].toSorted()
 
 export function getCompletions(partial: string): string[] {
   const q = partial.trim().toLowerCase()
@@ -123,7 +124,7 @@ export function statusLines(): OutputLine[] {
     {
       kind: 'kv',
       key: 'FOCUS',
-      value: 'React · Next.js · TypeScript · Product UI',
+      value: 'React · Next.js · TypeScript',
     },
     { kind: 'kv', key: 'CONTACT', value: profile.contact.email },
     { kind: 'blank' },
