@@ -259,10 +259,9 @@ export function Terminal() {
     if (e.key === 'Tab') {
       e.preventDefault();
       setAutoComplete('');
-      const parts = input.split(/\s+/);
-      if (parts.length > 1) return;
-      const matches = getCompletions(parts[0] ?? '');
-      if (matches.length === 1) {
+      const parts = input.split(/\s+/).map(i => i.trim().toLowerCase());
+      const matches = getCompletions(parts, module);
+      if (matches.length === 1) {        
         setInput(`${matches[0]} `);
       } else if (matches.length > 1) {
         stickModeRef.current = 'bottom';
@@ -274,7 +273,7 @@ export function Terminal() {
             lines: [
               {
                 kind: 'text',
-                segments: [{ text: matches.join('   '), tone: 'dim' }],
+                segments: [{ text: matches.map(m => m.replace(parts[0] ?? '', '')).join('   '), tone: 'dim' }],
               },
             ],
           },
@@ -369,7 +368,7 @@ export function Terminal() {
               }
               if(v.trim() === '') return;
               const p = v;
-              const matches = getCompletions(p ?? '');
+              const matches = getCompletions(p.split(/\s+/).map(i => i.trim().toLowerCase()), module);
               if (matches.length >= 1) {
                 setAutoComplete(matches[0].replace(p ?? '', '').trim());
               } else {

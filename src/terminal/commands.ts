@@ -49,22 +49,40 @@ const COMMANDS = [
 const fileSystem = {
   home: [],
   work: [
-    { fileName: 'linkdent.md', content: experienceCmd(['linkdent']) },
-    { fileName: 'thepersa.md', content: experienceCmd(['thepersa']) },
     { fileName: 'dropp.md', content: experienceCmd(['dropp']) },
+    { fileName: 'linkdent.md', content: experienceCmd(['linkdent']) },
     { fileName: 'startdone.md', content: experienceCmd(['startdone']) },
+    { fileName: 'thepersa.md', content: experienceCmd(['thepersa']) },
   ],
   about: [
-    { fileName: 'skills.md', content: skillsCmd([]) },
     { fileName: 'about.md', content: aboutCmd() },
+    { fileName: 'skills.json', content: skillsCmd([]) },
   ],
   contact: [{ fileName: 'contact.md', content: contactCmd() }],
 };
 
-export function getCompletions(partial: string): string[] {
-  const q = partial.trim().toLowerCase();
+function getCatCompletions(arg: string, currDir: string): string[] {  
+  const dirFiles = fileSystem[currDir as keyof typeof fileSystem];
+ return dirFiles?.filter((f) => f.fileName.startsWith(arg)).map((f) => f.fileName) ?? [];
+}
+
+function getCdCompletions(arg: string): string[] {
+  return modules.filter((m) => m.id.startsWith(arg)).map((m) => m.id);
+}
+
+export function getCompletions(partials: string[], currDir: string): string[] {
+  const [q, ...args] = partials;
   if (!q) return [...COMMANDS];
-  return COMMANDS.filter((c) => c.startsWith(q));
+  if (q === 'cat'){
+     return getCatCompletions(args[0], currDir).map( file => `${q} ${file}`);
+    }
+  if (q === 'cd'){
+    return getCdCompletions(args[0]).map( module => `${q} ${module}`);
+  }
+  
+  return args.length > 0 ? [] : COMMANDS.filter((c) => {
+   return c.startsWith(q)
+  });
 }
 
 function text(raw: string, tone?: OutputTone): OutputLine {
@@ -75,7 +93,7 @@ function mixed(...segments: OutputSegment[]): OutputLine {
   return { kind: 'text', segments };
 }
 
-function wrap(raw: string, width = 68): string[] {
+function wrap(raw: string, width = 80): string[] {
   const words = raw.split(/\s+/);
   const lines: string[] = [];
   let current = '';
@@ -220,10 +238,10 @@ function experienceCmd(args: string[]): CommandResult {
       { kind: 'blank' },
       ...wrap(job.summary).map((l) => text(l)),
       { kind: 'blank' },
-      { kind: 'kv', key: 'TECH', value: job.tech.join(' · ') },
+      text('TECH', 'dim'),
+      text( job.tech.join(' · ')),
       { kind: 'blank' },
       text('// highlights', 'dim'),
-      { kind: 'blank' },
       ...job.highlights.flatMap((h) => wrap(`  › ${h}`).map((l) => text(l))),
     ],
     module: 'work',
@@ -233,7 +251,6 @@ function experienceCmd(args: string[]): CommandResult {
 function skillsCmd(args: string[]): CommandResult {
   const query = args.join(' ').trim().toLowerCase();
   const lines: OutputLine[] = [
-    { kind: 'cmd', text: 'cat skills.json' },
     { kind: 'blank' },
   ];
 
