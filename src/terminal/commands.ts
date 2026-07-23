@@ -84,17 +84,16 @@ function help(): CommandResult {
     lines: [
       text('Available commands', 'dim'),
       { kind: 'blank' },
-      text('  help                               Show this list'),
-      text('  home | work | about | contact      Jump to a module'),
-      text('  whoami                             Bio'),
-      text('  experience | exp                   Work history (exp <company>)'),
-      text('  skills                             Tech inventory'),
-      text('  status                             Live status block'),
-      text('  contact                            Email / GitHub'),
-      text('  github                             Open GitHub'),
-      text('  fetch                              System summary'),
-      text('  ls                                 Virtual filesystem'),
-      text('  clear                              Clear scrollback'),
+      text('  help                   Show this list'),
+      text('  whoami                 Bio'),
+      text('  experience | exp       Work history (exp <company>)'),
+      text('  skills | skill         Tech inventory'),
+      text('  status                 Live status block'),
+      text('  contact                Email / GitHub'),
+      text('  github | gh            Open GitHub'),
+      text('  info                   System summary'),
+      text('  ls                     Virtual filesystem'),
+      text('  clear                  Clear scrollback'),
       { kind: 'blank' },
       { kind: 'tip', text: '← → modules when input empty · Tab autocomplete · Ctrl+L clear' },
     ],
@@ -133,10 +132,6 @@ export function statusLines(): OutputLine[] {
       text: 'OPEN TO WORK — FREELANCE + FULL-TIME',
     },
     { kind: 'blank' },
-    {
-      kind: 'tip',
-      text: '← → arrows to switch modules — type help for commands',
-    },
   ]
 }
 
@@ -288,7 +283,6 @@ export function runCommand(
 
   switch (name) {
     case 'help':
-    case '?':
       return help()
     case 'home':
       return { lines: [], module: 'home', clear: true }
@@ -296,7 +290,6 @@ export function runCommand(
       return { ...experienceCmd([]), clear: true, module: 'work' }
     case 'experience':
     case 'exp':
-    case 'projects':
       return experienceCmd(args)
     case 'about':
       if (args.length === 0) {
@@ -318,8 +311,6 @@ export function runCommand(
         lines: [text(`Opening ${profile.contact.githubUrl} …`, 'dim')],
         openUrl: profile.contact.githubUrl,
       }
-    case 'fetch':
-    case 'neofetch':
     case 'info':
       return fetchCmd()
     case 'ls':
