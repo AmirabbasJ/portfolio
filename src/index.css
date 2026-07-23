@@ -6,13 +6,13 @@
   --text: #f4f4fb;
   --dim: #6e6e8c;
   --muted: #9a9ab8;
-  --accent: #c1c1e0;
-  --accent-bright: #e4e4f5;
-  --accent-dim: #8a8ab0;
+  --accent: #7c7cf3;
+  --accent-bright: #a8a8f8;
+  --accent-dim: #5e5ed8;
   --warn: #d4b08c;
   --error: #e08a9a;
   --line: #2e2d42;
-  --badge-bg: rgba(193, 193, 224, 0.06);
+  --badge-bg: rgba(124, 124, 243, 0.12);
   --font:
     'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   color-scheme: dark;
@@ -34,7 +34,7 @@ body {
   margin: 0;
   font-family: var(--font);
   background:
-    radial-gradient(900px 480px at 50% -20%, #2a2840 0%, transparent 55%),
+    radial-gradient(900px 480px at 50% -20%, #2e2c52 0%, transparent 55%),
     var(--bg);
   color: var(--text);
   -webkit-font-smoothing: antialiased;
@@ -188,7 +188,7 @@ body {
   color: var(--accent-bright);
   font-size: 0.78em;
   letter-spacing: 0.04em;
-  box-shadow: 0 0 28px rgba(193, 193, 224, 0.1);
+  box-shadow: 0 0 28px rgba(124, 124, 243, 0.22);
 }
 
 .out-badge__dot {
