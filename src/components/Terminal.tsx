@@ -2,39 +2,34 @@ import {
   useCallback,
   useEffect,
   useLayoutEffect,
-  useMemo,
   useRef,
   useState,
   type KeyboardEvent,
-} from 'react'
-import { experience, profile } from '../data/resume'
+} from 'react';
+import { experience, profile } from '../data/resume';
 import {
   getCompletions,
   runCommand,
   statusLines,
   whoamiLines,
   type OutputLine,
-} from '../terminal/commands'
-import { modules, type ModuleId } from '../terminal/system'
-import { ModuleNav } from './ModuleNav'
-import { OutputBlock } from './OutputBlock'
-import { SystemHeader } from './SystemHeader'
+} from '../terminal/commands';
+import { modules, type ModuleId } from '../terminal/system';
+import { ModuleNav } from './ModuleNav';
+import { OutputBlock } from './OutputBlock';
+import { SystemHeader } from './SystemHeader';
 
 type ScrollLine =
   | { id: number; kind: 'out'; lines: OutputLine[] }
-  | { id: number; kind: 'typed'; text: string }
+  | { id: number; kind: 'typed'; text: string };
 
-let lineId = 0
-const nextId = () => ++lineId
+let lineId = 0;
+const nextId = () => ++lineId;
 
 function moduleSeed(id: ModuleId): OutputLine[] {
   switch (id) {
     case 'home':
-      return [
-        { kind: 'mark' },
-        ...whoamiLines(),
-        ...statusLines(),
-      ]
+      return [{ kind: 'mark' }, ...whoamiLines(), ...statusLines()];
     case 'work': {
       const lines: OutputLine[] = [
         { kind: 'cmd', text: 'ls -la /work/' },
@@ -49,9 +44,9 @@ function moduleSeed(id: ModuleId): OutputLine[] {
           ],
         },
         { kind: 'blank' },
-      ]
+      ];
       experience.forEach((job, i) => {
-        const n = String(i + 1).padStart(2, '0')
+        const n = String(i + 1).padStart(2, '0');
         lines.push(
           {
             kind: 'text',
@@ -68,9 +63,9 @@ function moduleSeed(id: ModuleId): OutputLine[] {
             ],
           },
           { kind: 'blank' },
-        )
-      })
-      return lines
+        );
+      });
+      return lines;
     }
     case 'about':
       return [
@@ -85,7 +80,7 @@ function moduleSeed(id: ModuleId): OutputLine[] {
           kind: 'tip',
           text: 'type skills  or  skills testing  for the inventory',
         },
-      ]
+      ];
     case 'contact':
       return [
         { kind: 'cmd', text: 'cat contact.md' },
@@ -104,87 +99,85 @@ function moduleSeed(id: ModuleId): OutputLine[] {
           kind: 'tip',
           text: 'type github  to open the profile in a new tab',
         },
-      ]
+      ];
   }
 }
 
 export function Terminal() {
-  const [module, setModule] = useState<ModuleId>('home')
+  const [module, setModule] = useState<ModuleId>('home');
   const [scroll, setScroll] = useState<ScrollLine[]>(() => [
     { id: nextId(), kind: 'out', lines: moduleSeed('home') },
-  ])
-  const [input, setInput] = useState('')
-  const [history, setHistory] = useState<string[]>([])
-  const [histIndex, setHistIndex] = useState<number | null>(null)
-  const [draft, setDraft] = useState('')
-  const bottomRef = useRef<HTMLDivElement>(null)
-  const scrollRef = useRef<HTMLDivElement>(null)
-  const inputRef = useRef<HTMLInputElement>(null)
-  const stickModeRef = useRef<'top' | 'bottom'>('top')
+  ]);
+  const [input, setInput] = useState('');
+  const [history, setHistory] = useState<string[]>([]);
+  const [histIndex, setHistIndex] = useState<number | null>(null);
+  const [draft, setDraft] = useState('');
+  const [autoComplete, setAutoComplete] = useState<string>('');
+  const bottomRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const stickModeRef = useRef<'top' | 'bottom'>('top');
 
-  const placeholder = useMemo(
-    () => `type a command (try: help)`,
-    [],
-  )
+  const placeholder = 'type a command (try: help)';
 
   useLayoutEffect(() => {
     if (stickModeRef.current === 'top') {
-      const el = scrollRef.current
-      if (!el) return
-      el.scrollTop = 0
+      const el = scrollRef.current;
+      if (!el) return;
+      el.scrollTop = 0;
       requestAnimationFrame(() => {
-        el.scrollTop = 0
-      })
-      return
+        el.scrollTop = 0;
+      });
+      return;
     }
-    bottomRef.current?.scrollIntoView({ block: 'end' })
-  }, [scroll, module])
+    bottomRef.current?.scrollIntoView({ block: 'end' });
+  }, [scroll, module]);
 
   const focusInput = useCallback(() => {
-    inputRef.current?.focus({ preventScroll: true })
-  }, [])
+    inputRef.current?.focus({ preventScroll: true });
+  }, []);
 
   useEffect(() => {
-    focusInput()
-  }, [focusInput, module])
+    focusInput();
+  }, [focusInput, module]);
 
   const goModule = useCallback((id: ModuleId) => {
-    stickModeRef.current = 'top'
-    setModule(id)
-    setScroll([{ id: nextId(), kind: 'out', lines: moduleSeed(id) }])
-    setInput('')
-    setHistIndex(null)
-    window.location.hash = id
-  }, [])
+    stickModeRef.current = 'top';
+    setModule(id);
+    setScroll([{ id: nextId(), kind: 'out', lines: moduleSeed(id) }]);
+    setInput('');
+    setHistIndex(null);
+    window.location.hash = id;
+  }, []);
 
   useEffect(() => {
-    const fromHash = window.location.hash.replace('#', '') as ModuleId
-    if (modules.some((m) => m.id === fromHash) && fromHash !== 'home') {
-      goModule(fromHash)
-    }
+    const fromHash = window.location.hash.replace('#', '') as ModuleId;
+    if (modules.some((m) => m.id === fromHash) && fromHash !== 'home')
+      goModule(fromHash);
+
     // only on mount
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, []);
 
   const submit = useCallback(
     (raw: string) => {
-      const value = raw.trimEnd()
+      const value = raw.trim();
       if (!value.trim()) {
-        setInput('')
-        return
+        setInput('');
+        return;
       }
 
-      const nextHistory = [...history, value]
-      setHistory(nextHistory)
-      setHistIndex(null)
-      setDraft('')
+      const nextHistory = [...history, value];
+      setHistory(nextHistory);
+      setHistIndex(null);
+      setDraft('');
 
-      const result = runCommand(value, nextHistory)
+      const result = runCommand(value, nextHistory);
 
       if (result.module && result.clear) {
-        stickModeRef.current = 'top'
-        setModule(result.module)
-        window.location.hash = result.module
+        stickModeRef.current = 'top';
+        setModule(result.module);
+        window.location.hash = result.module;
         setScroll([
           {
             id: nextId(),
@@ -194,81 +187,85 @@ export function Terminal() {
                 ? result.lines
                 : moduleSeed(result.module),
           },
-        ])
-        setInput('')
-        return
+        ]);
+        setInput('');
+        return;
       }
 
       if (result.clear && !result.module) {
-        stickModeRef.current = 'top'
-        setScroll([{ id: nextId(), kind: 'out', lines: moduleSeed(module) }])
-        setInput('')
-        return
+        stickModeRef.current = 'top';
+        setScroll([{ id: nextId(), kind: 'out', lines: moduleSeed(module) }]);
+        setInput('');
+        return;
       }
 
       if (result.openUrl) {
-        window.open(result.openUrl, '_blank', 'noopener,noreferrer')
+        window.open(result.openUrl, '_blank', 'noopener,noreferrer');
       }
 
       if (result.module) {
-        setModule(result.module)
-        window.location.hash = result.module
+        setModule(result.module);
+        window.location.hash = result.module;
       }
 
-      stickModeRef.current = 'bottom'
+      stickModeRef.current = 'bottom';
       setScroll((prev) => [
         ...prev,
         { id: nextId(), kind: 'typed', text: value },
         ...(result.lines.length
           ? [{ id: nextId(), kind: 'out' as const, lines: result.lines }]
           : []),
-      ])
-      setInput('')
+      ]);
+      setInput('');
     },
     [history, module],
-  )
+  );
 
   const cycleModule = (dir: 1 | -1) => {
-    const idx = modules.findIndex((m) => m.id === module)
-    const next = modules[(idx + dir + modules.length) % modules.length]
-    if (next) goModule(next.id)
-  }
+    const idx = modules.findIndex((m) => m.id === module);
+    const next = modules[(idx + dir + modules.length) % modules.length];
+    if (next) goModule(next.id);
+  };
 
   const onKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
-      e.preventDefault()
-      submit(input)
-      return
+      e.preventDefault();
+      submit(input);
+      setAutoComplete('');
+      return;
     }
 
     if (e.key === 'c' && e.ctrlKey) {
-      e.preventDefault()
-      stickModeRef.current = 'bottom'
+      e.preventDefault();
+      stickModeRef.current = 'bottom';
       setScroll((prev) => [
         ...prev,
         { id: nextId(), kind: 'typed', text: `${input}^C` },
-      ])
-      setInput('')
-      setHistIndex(null)
-      return
+      ]);
+      setInput('');
+      setAutoComplete('');
+      setHistIndex(null);
+      return;
     }
 
     if (e.key === 'l' && e.ctrlKey) {
-      e.preventDefault()
-      stickModeRef.current = 'top'
-      setScroll([{ id: nextId(), kind: 'out', lines: moduleSeed(module) }])
-      return
+      e.preventDefault();
+      setAutoComplete('');
+      stickModeRef.current = 'top';
+      setScroll([{ id: nextId(), kind: 'out', lines: moduleSeed(module) }]);
+      return;
     }
 
     if (e.key === 'Tab') {
-      e.preventDefault()
-      const parts = input.split(/\s+/)
-      if (parts.length > 1) return
-      const matches = getCompletions(parts[0] ?? '')
+      e.preventDefault();
+      setAutoComplete('');
+      const parts = input.split(/\s+/);
+      if (parts.length > 1) return;
+      const matches = getCompletions(parts[0] ?? '');
       if (matches.length === 1) {
-        setInput(`${matches[0]} `)
+        setInput(`${matches[0]} `);
       } else if (matches.length > 1) {
-        stickModeRef.current = 'bottom'
+        stickModeRef.current = 'bottom';
         setScroll((prev) => [
           ...prev,
           {
@@ -281,47 +278,47 @@ export function Terminal() {
               },
             ],
           },
-        ])
+        ]);
       }
-      return
+      return;
     }
 
     // Module cycling when input empty (ZUI-style)
     if (!input && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')) {
-      e.preventDefault()
-      cycleModule(e.key === 'ArrowLeft' ? -1 : 1)
-      return
+      e.preventDefault();
+      cycleModule(e.key === 'ArrowLeft' ? -1 : 1);
+      return;
     }
 
     if (e.key === 'ArrowUp') {
-      e.preventDefault()
-      if (history.length === 0) return
+      e.preventDefault();
+      if (history.length === 0) return;
       if (histIndex === null) {
-        setDraft(input)
-        const i = history.length - 1
-        setHistIndex(i)
-        setInput(history[i] ?? '')
+        setDraft(input);
+        const i = history.length - 1;
+        setHistIndex(i);
+        setInput(history[i] ?? '');
       } else if (histIndex > 0) {
-        const i = histIndex - 1
-        setHistIndex(i)
-        setInput(history[i] ?? '')
+        const i = histIndex - 1;
+        setHistIndex(i);
+        setInput(history[i] ?? '');
       }
-      return
+      return;
     }
 
     if (e.key === 'ArrowDown') {
-      e.preventDefault()
-      if (histIndex === null) return
+      e.preventDefault();
+      if (histIndex === null) return;
       if (histIndex < history.length - 1) {
-        const i = histIndex + 1
-        setHistIndex(i)
-        setInput(history[i] ?? '')
+        const i = histIndex + 1;
+        setHistIndex(i);
+        setInput(history[i] ?? '');
       } else {
-        setHistIndex(null)
-        setInput(draft)
+        setHistIndex(null);
+        setInput(draft);
       }
     }
-  }
+  };
 
   return (
     <div className="os">
@@ -363,10 +360,20 @@ export function Terminal() {
             value={input}
             placeholder={placeholder}
             onChange={(e) => {
-              setInput(e.target.value)
+              const v = e.target.value
+
+              setInput(v);
               if (histIndex !== null) {
-                setHistIndex(null)
-                setDraft(e.target.value)
+                setHistIndex(null);
+                setDraft(v);
+              }
+              if(v.trim() === '') return;
+              const p = v;
+              const matches = getCompletions(p ?? '');
+              if (matches.length >= 1) {
+                setAutoComplete(matches[0].replace(p ?? '', '').trim());
+              } else {
+                setAutoComplete('');
               }
             }}
             onKeyDown={onKeyDown}
@@ -378,7 +385,10 @@ export function Terminal() {
           />
           <span className="term-ghost" aria-hidden="true">
             {input ? (
-              input
+              <>
+                {input}
+                <span className="term-placeholder">{autoComplete}</span>
+              </>
             ) : (
               <span className="term-placeholder">{placeholder}</span>
             )}
@@ -390,5 +400,5 @@ export function Terminal() {
       <div className="os-rule" />
       <ModuleNav active={module} onSelect={goModule} />
     </div>
-  )
+  );
 }

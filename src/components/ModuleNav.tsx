@@ -24,7 +24,7 @@ export function ModuleNav({ active, onSelect }: ModuleNavProps) {
                 aria-current={isActive ? 'page' : undefined}
               >
                 {isActive ? '> ' : '  '}
-                {mod.index}._{mod.label}
+                /{mod.label}
               </button>
             </li>
           )
