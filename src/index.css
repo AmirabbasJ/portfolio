@@ -145,7 +145,7 @@ body {
 .out-mark--ascii {
   margin: 0.15rem 0 1.1rem;
   line-height: 1.15;
-  font-size: clamp(6px, 1.15vw, 11px);
+  font-size: clamp(6px, 1.15vw, 10px);
   font-family: var(--font);
   white-space: pre;
   color: var(--accent);
