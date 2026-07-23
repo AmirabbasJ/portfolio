@@ -95,7 +95,7 @@ function help(): CommandResult {
       text('  ls                                 Virtual filesystem'),
       text('  clear                              Clear scrollback'),
       { kind: 'blank' },
-      { kind: 'tip', text: '↑↓ modules when input empty · Tab autocomplete · Ctrl+L clear' },
+      { kind: 'tip', text: '← → modules when input empty · Tab autocomplete · Ctrl+L clear' },
     ],
   }
 }
@@ -109,12 +109,8 @@ export function whoamiLines(): OutputLine[] {
       { text: profile.name, tone: 'accent' },
       { text: ' — React & Next.js for 4+ years.' },
     ),
-    ...wrap(
-      `  Building multi-tenant platforms, health dashboards, and production admin systems end-to-end.`,
-    ).map((l) => text(l)),
-    text(
-      '  Currently freelancing on LinkDent — a B2B dental platform for clinics & practitioners.',
-    ),
+    text('  Building multi-tenant platforms, health dashboards, and production admin systems end-to-end.'),
+    text('  Currently freelancing on LinkDent — a B2B dental platform for clinics & practitioners.'),
     { kind: 'blank' },
   ]
 }
@@ -138,7 +134,7 @@ export function statusLines(): OutputLine[] {
     { kind: 'blank' },
     {
       kind: 'tip',
-      text: '↑↓ arrows to switch modules — type help for commands',
+      text: '← → arrows to switch modules — type help for commands',
     },
   ]
 }

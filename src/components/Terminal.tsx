@@ -287,9 +287,9 @@ export function Terminal() {
     }
 
     // Module cycling when input empty (ZUI-style)
-    if (!input && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
+    if (!input && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')) {
       e.preventDefault()
-      cycleModule(e.key === 'ArrowUp' ? -1 : 1)
+      cycleModule(e.key === 'ArrowLeft' ? -1 : 1)
       return
     }
 

@@ -10,7 +10,7 @@ export function ModuleNav({ active, onSelect }: ModuleNavProps) {
     <nav className="mod-nav" aria-label="Modules">
       <p className="mod-nav__hint">
         <span className="tone-accent">root@aj/nav</span>
-        <span className="tone-dim"> &gt; SELECT MODULE [↑↓ + ENTER or click]</span>
+        <span className="tone-dim"> &gt; SELECT MODULE [← → or click]</span>
       </p>
       <ul className="mod-nav__list">
         {modules.map((mod) => {
