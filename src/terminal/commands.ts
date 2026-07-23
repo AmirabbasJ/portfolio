@@ -296,19 +296,16 @@ function catCmd(arg: string, curDir: string): CommandResult {
   return file?.content ?? { lines: [text('file not found')] };
 }
 
-function ls(): CommandResult {
+function ls(currDir: string): CommandResult {
+  const dirFiles = fileSystem[currDir as keyof typeof fileSystem];
+
   return {
     lines: [
-      { kind: 'cmd', text: 'ls -la ~/' },
+      { kind: 'cmd', text: 'ls -la' },
       { kind: 'blank' },
-      text('drwx  home/'),
-      text('drwx  work/'),
-      text('drwx  about/'),
-      text('drwx  contact/'),
-      text('-rw-  status.txt'),
-      text('-rw-  skills.json'),
+      ...(dirFiles?.map((f) => text(`-rw-  ${f.fileName}`)) ?? []),
       { kind: 'blank' },
-      text('cd <module> or click the nav below', 'dim'),
+      text(`cd <module> or click the nav below`, 'dim'),
     ],
   };
 }
@@ -360,7 +357,7 @@ export function runCommand({
     case 'info':
       return fetchCmd();
     case 'ls':
-      return ls();
+      return args.length > 0 ?  { lines: [text("ls doesn't work with arguments")] } : ls(currDir);
     case 'cd': {
       const target = (args[0] ?? '').replace(/^\.\//, '').replace(/\/$/, '');
       const mod = modules.find(

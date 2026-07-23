@@ -159,7 +159,7 @@ export function Terminal() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const submit = useCallback(
+  const submit =   useCallback(
     (raw: string) => {
       const value = raw.trim();
       if (!value.trim()) {
