@@ -83,18 +83,17 @@ function help(): CommandResult {
     lines: [
       text('Available commands', 'dim'),
       { kind: 'blank' },
-      text('  help              Show this list'),
-      text('  home | work | about | contact'),
-      text('                    Jump to a module'),
-      text('  whoami            Bio'),
-      text('  experience | exp  Work history (exp <company>)'),
-      text('  skills            Tech inventory'),
-      text('  status            Live status block'),
-      text('  contact           Email / phone / GitHub'),
-      text('  github            Open GitHub'),
-      text('  fetch             System summary'),
-      text('  ls                Virtual filesystem'),
-      text('  clear             Clear scrollback'),
+      text('  help                               Show this list'),
+      text('  home | work | about | contact      Jump to a module'),
+      text('  whoami                             Bio'),
+      text('  experience | exp                   Work history (exp <company>)'),
+      text('  skills                             Tech inventory'),
+      text('  status                             Live status block'),
+      text('  contact                            Email / GitHub'),
+      text('  github                             Open GitHub'),
+      text('  fetch                              System summary'),
+      text('  ls                                 Virtual filesystem'),
+      text('  clear                              Clear scrollback'),
       { kind: 'blank' },
       { kind: 'tip', text: '↑↓ modules when input empty · Tab autocomplete · Ctrl+L clear' },
     ],
@@ -102,13 +101,12 @@ function help(): CommandResult {
 }
 
 export function whoamiLines(): OutputLine[] {
-  const first = profile.name.split(' ')[0]
   return [
     { kind: 'cmd', text: 'whoami' },
     { kind: 'blank' },
     mixed(
       { text: '  Frontend engineer who ships. ' },
-      { text: first ?? profile.name, tone: 'accent' },
+      { text: profile.name, tone: 'accent' },
       { text: ' — React & Next.js for 4+ years.' },
     ),
     ...wrap(
@@ -241,7 +239,6 @@ function contactCmd(): CommandResult {
       { kind: 'cmd', text: 'cat contact.md' },
       { kind: 'blank' },
       { kind: 'kv', key: 'EMAIL', value: contact.email },
-      { kind: 'kv', key: 'PHONE', value: contact.phone },
       { kind: 'kv', key: 'GITHUB', value: `@${contact.github}` },
       { kind: 'kv', key: 'URL', value: contact.githubUrl },
       { kind: 'blank' },
@@ -299,12 +296,10 @@ export function runCommand(
     case 'home':
       return { lines: [], module: 'home', clear: true }
     case 'work':
+      return { ...experienceCmd([]), clear: true, module: 'work' }
     case 'experience':
     case 'exp':
     case 'projects':
-      if (name === 'work' && args.length === 0) {
-        return { ...experienceCmd([]), clear: true, module: 'work' }
-      }
       return experienceCmd(args)
     case 'about':
       if (args.length === 0) {

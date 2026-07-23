@@ -4,7 +4,6 @@ export const profile = {
   summary:
     'Experienced React and Next.js developer with 4+ years of expertise in delivering top-notch web applications. Proficient in selecting ideal technologies and tools for diverse domains and challenges, dedicated to continuous learning and skill enhancement to provide innovative solutions that surpass expectations.',
   contact: {
-    phone: '+98 9393040461',
     email: 'amirabbasjalali82@gmail.com',
     github: 'AmirabbasJ',
     githubUrl: 'https://github.com/AmirabbasJ',
