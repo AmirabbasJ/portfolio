@@ -1,12 +1,12 @@
-import { experience, profile, skillGroups } from '../data/resume'
-import { modules, type ModuleId } from './system'
+import { experience, profile, skillGroups } from '../data/resume';
+import { modules, type ModuleId } from './system';
 
-export type OutputTone = 'dim' | 'accent' | 'error' | 'label' | 'warn'
+export type OutputTone = 'dim' | 'accent' | 'error' | 'label' | 'warn';
 
 export type OutputSegment = {
-  text: string
-  tone?: OutputTone
-}
+  text: string;
+  tone?: OutputTone;
+};
 
 export type OutputLine =
   | { kind: 'text'; segments: OutputSegment[] }
@@ -16,14 +16,14 @@ export type OutputLine =
   | { kind: 'rule' }
   | { kind: 'kv'; key: string; value: string }
   | { kind: 'tip'; text: string }
-  | { kind: 'mark' }
+  | { kind: 'mark' };
 
 export type CommandResult = {
-  lines: OutputLine[]
-  openUrl?: string
-  clear?: boolean
-  module?: ModuleId
-}
+  lines: OutputLine[];
+  openUrl?: string;
+  clear?: boolean;
+  module?: ModuleId;
+};
 
 const COMMANDS = [
   'help',
@@ -43,40 +43,56 @@ const COMMANDS = [
   'history',
   'status',
   'cd',
-].toSorted()
+  'cat',
+].toSorted();
+
+const fileSystem = {
+  home: [],
+  work: [
+    { fileName: 'linkdent.md', content: experienceCmd(['linkdent']) },
+    { fileName: 'thepersa.md', content: experienceCmd(['thepersa']) },
+    { fileName: 'dropp.md', content: experienceCmd(['dropp']) },
+    { fileName: 'startdone.md', content: experienceCmd(['startdone']) },
+  ],
+  about: [
+    { fileName: 'skills.md', content: skillsCmd([]) },
+    { fileName: 'about.md', content: aboutCmd() },
+  ],
+  contact: [{ fileName: 'contact.md', content: contactCmd() }],
+};
 
 export function getCompletions(partial: string): string[] {
-  const q = partial.trim().toLowerCase()
-  if (!q) return [...COMMANDS]
-  return COMMANDS.filter((c) => c.startsWith(q))
+  const q = partial.trim().toLowerCase();
+  if (!q) return [...COMMANDS];
+  return COMMANDS.filter((c) => c.startsWith(q));
 }
 
 function text(raw: string, tone?: OutputTone): OutputLine {
-  return { kind: 'text', segments: [{ text: raw, tone }] }
+  return { kind: 'text', segments: [{ text: raw, tone }] };
 }
 
 function mixed(...segments: OutputSegment[]): OutputLine {
-  return { kind: 'text', segments }
+  return { kind: 'text', segments };
 }
 
 function wrap(raw: string, width = 68): string[] {
-  const words = raw.split(/\s+/)
-  const lines: string[] = []
-  let current = ''
+  const words = raw.split(/\s+/);
+  const lines: string[] = [];
+  let current = '';
   for (const word of words) {
     if (!current) {
-      current = word
-      continue
+      current = word;
+      continue;
     }
     if (`${current} ${word}`.length > width) {
-      lines.push(current)
-      current = word
+      lines.push(current);
+      current = word;
     } else {
-      current = `${current} ${word}`
+      current = `${current} ${word}`;
     }
   }
-  if (current) lines.push(current)
-  return lines
+  if (current) lines.push(current);
+  return lines;
 }
 
 function help(): CommandResult {
@@ -95,24 +111,43 @@ function help(): CommandResult {
       text('  ls                     Virtual filesystem'),
       text('  clear                  Clear scrollback'),
       { kind: 'blank' },
-      { kind: 'tip', text: '← → modules when input empty · Tab autocomplete · Ctrl+L clear' },
+      {
+        kind: 'tip',
+        text: '← → modules when input empty · Tab autocomplete · Ctrl+L clear',
+      },
     ],
-  }
+  };
+}
+
+function aboutCmd(): CommandResult {
+  return {
+    lines: [
+      { kind: 'blank' },
+      {
+        kind: 'text',
+        segments: [{ text: profile.summary }],
+      },
+      { kind: 'blank' },
+    ],
+  };
 }
 
 export function whoamiLines(): OutputLine[] {
   return [
-    { kind: 'cmd', text: 'whoami' },
     { kind: 'blank' },
     mixed(
       { text: '  Frontend engineer who ships. ' },
       { text: profile.name, tone: 'accent' },
       { text: ' — React & Next.js for 4+ years.' },
     ),
-    text('  Building multi-tenant platforms, health dashboards, and production admin systems end-to-end.'),
-    text('  Currently freelancing on LinkDent — a B2B dental platform for clinics & practitioners.'),
+    text(
+      '  Building multi-tenant platforms, health dashboards, and production admin systems end-to-end.',
+    ),
+    text(
+      '  Currently freelancing on LinkDent — a B2B dental platform for clinics & practitioners.',
+    ),
     { kind: 'blank' },
-  ]
+  ];
 }
 
 export function statusLines(): OutputLine[] {
@@ -132,11 +167,11 @@ export function statusLines(): OutputLine[] {
       text: 'OPEN TO WORK — FREELANCE + FULL-TIME',
     },
     { kind: 'blank' },
-  ]
+  ];
 }
 
 function experienceCmd(args: string[]): CommandResult {
-  const query = args.join(' ').trim().toLowerCase()
+  const query = args.join(' ').trim().toLowerCase();
 
   if (!query) {
     const lines: OutputLine[] = [
@@ -144,9 +179,9 @@ function experienceCmd(args: string[]): CommandResult {
       { kind: 'blank' },
       text(`${experience.length} entries — run: experience <company>`, 'dim'),
       { kind: 'blank' },
-    ]
+    ];
     experience.forEach((job, i) => {
-      const n = String(i + 1).padStart(2, '0')
+      const n = String(i + 1).padStart(2, '0');
       lines.push(
         mixed(
           { text: `${n}  `, tone: 'dim' },
@@ -155,16 +190,16 @@ function experienceCmd(args: string[]): CommandResult {
         ),
         text(`    ${job.location} · ${job.period}`, 'dim'),
         { kind: 'blank' },
-      )
-    })
-    return { lines, module: 'work' }
+      );
+    });
+    return { lines, module: 'work' };
   }
 
   const job = experience.find(
     (j) =>
       j.company.toLowerCase().includes(query) ||
       j.location.toLowerCase().includes(query),
-  )
+  );
 
   if (!job) {
     return {
@@ -172,7 +207,7 @@ function experienceCmd(args: string[]): CommandResult {
         text(`No match for "${args.join(' ')}"`, 'error'),
         text(`Known: ${experience.map((j) => j.company).join(', ')}`, 'dim'),
       ],
-    }
+    };
   }
 
   return {
@@ -192,19 +227,19 @@ function experienceCmd(args: string[]): CommandResult {
       ...job.highlights.flatMap((h) => wrap(`  › ${h}`).map((l) => text(l))),
     ],
     module: 'work',
-  }
+  };
 }
 
 function skillsCmd(args: string[]): CommandResult {
-  const query = args.join(' ').trim().toLowerCase()
+  const query = args.join(' ').trim().toLowerCase();
   const lines: OutputLine[] = [
     { kind: 'cmd', text: 'cat skills.json' },
     { kind: 'blank' },
-  ]
+  ];
 
   const groups = query
     ? skillGroups.filter((g) => g.label.toLowerCase().includes(query))
-    : [...skillGroups]
+    : [...skillGroups];
 
   if (groups.length === 0) {
     return {
@@ -212,20 +247,20 @@ function skillsCmd(args: string[]): CommandResult {
         text(`No group matching "${args.join(' ')}"`, 'error'),
         text(`Groups: ${skillGroups.map((g) => g.label).join(', ')}`, 'dim'),
       ],
-    }
+    };
   }
 
   for (const group of groups) {
-    lines.push(text(group.label.toUpperCase(), 'accent'))
-    lines.push(text(`  ${group.items.join(' · ')}`))
-    lines.push({ kind: 'blank' })
+    lines.push(text(group.label.toUpperCase(), 'accent'));
+    lines.push(text(`  ${group.items.join(' · ')}`));
+    lines.push({ kind: 'blank' });
   }
 
-  return { lines, module: 'about' }
+  return { lines, module: 'about' };
 }
 
 function contactCmd(): CommandResult {
-  const { contact } = profile
+  const { contact } = profile;
   return {
     lines: [
       { kind: 'cmd', text: 'cat contact.md' },
@@ -237,7 +272,7 @@ function contactCmd(): CommandResult {
       text('Run: github   to open the profile', 'dim'),
     ],
     module: 'contact',
-  }
+  };
 }
 
 function fetchCmd(): CommandResult {
@@ -251,7 +286,14 @@ function fetchCmd(): CommandResult {
       { kind: 'kv', key: 'SHELL', value: 'ajsh 1.0' },
       { kind: 'kv', key: 'STATUS', value: 'open to freelance & full-time' },
     ],
-  }
+  };
+}
+
+function catCmd(arg: string, curDir: string): CommandResult {
+  const fileName = arg;
+  const dirFiles = fileSystem[curDir as keyof typeof fileSystem];
+  const file = dirFiles?.find((f) => f.fileName === fileName);
+  return file?.content ?? { lines: [text('file not found')] };
 }
 
 function ls(): CommandResult {
@@ -268,91 +310,97 @@ function ls(): CommandResult {
       { kind: 'blank' },
       text('cd <module> or click the nav below', 'dim'),
     ],
-  }
+  };
 }
 
-export function runCommand(
-  input: string,
-  history: string[],
-): CommandResult {
-  const trimmed = input.trim()
-  if (!trimmed) return { lines: [] }
+interface RunCommandOptions {
+  input: string;
+  history: string[];
+  currDir: string;
+}
 
-  const [rawName, ...args] = trimmed.split(/\s+/)
-  const name = rawName.toLowerCase()
+export function runCommand({
+  input,
+  history,
+  currDir,
+}: RunCommandOptions): CommandResult {
+  const trimmed = input.trim();
+  if (!trimmed) return { lines: [] };
+  const [rawName, ...args] = trimmed.split(/\s+/);
+  const name = rawName.toLowerCase();
 
   switch (name) {
     case 'help':
-      return help()
+      return help();
     case 'home':
-      return { lines: [], module: 'home', clear: true }
+      return { lines: [], module: 'home', clear: true };
     case 'work':
-      return { ...experienceCmd([]), clear: true, module: 'work' }
+      return { ...experienceCmd([]), clear: true, module: 'work' };
     case 'experience':
     case 'exp':
-      return experienceCmd(args)
+      return experienceCmd(args);
     case 'about':
-      if (args.length === 0) {
-        return { lines: [], module: 'about', clear: true }
-      }
-      return skillsCmd(args)
+      if (args.length === 0) return { lines: [], module: 'about', clear: true };
+      return skillsCmd(args);
     case 'contact':
-      return { ...contactCmd(), clear: true }
+      return { ...contactCmd(), clear: true };
     case 'whoami':
-      return { lines: whoamiLines() }
+      return { lines: whoamiLines() };
     case 'skills':
     case 'skill':
-      return skillsCmd(args)
+      return skillsCmd(args);
     case 'status':
-      return { lines: statusLines() }
+      return { lines: statusLines() };
     case 'github':
     case 'gh':
       return {
         lines: [text(`Opening ${profile.contact.githubUrl} …`, 'dim')],
         openUrl: profile.contact.githubUrl,
-      }
+      };
     case 'info':
-      return fetchCmd()
+      return fetchCmd();
     case 'ls':
-      return ls()
+      return ls();
     case 'cd': {
-      const target = (args[0] ?? '').replace(/^\.\//, '').replace(/\/$/, '')
+      const target = (args[0] ?? '').replace(/^\.\//, '').replace(/\/$/, '');
       const mod = modules.find(
         (m) =>
           m.id === target ||
           m.label.toLowerCase() === target.toLowerCase() ||
           m.index === target,
-      )
+      );
       if (!mod) {
         return {
           lines: [
             text(`cd: no such module: ${args[0] ?? ''}`, 'error'),
             text(`modules: ${modules.map((m) => m.id).join(', ')}`, 'dim'),
           ],
-        }
+        };
       }
-      return { lines: [], module: mod.id, clear: true }
+      return { lines: [], module: mod.id, clear: true };
     }
     case 'clear':
     case 'cls':
-      return { lines: [], clear: true }
+      return { lines: [], clear: true };
     case 'history':
       return {
         lines:
           history.length === 0
             ? [text('(empty)', 'dim')]
             : history.map((h, i) => text(`  ${i + 1}  ${h}`)),
-      }
+      };
     case 'echo':
-      return { lines: [text(args.join(' '))] }
+      return { lines: [text(args.join(' '))] };
     case 'sudo':
-      return { lines: [text('permission denied', 'error')] }
+      return { lines: [text('permission denied', 'error')] };
+    case 'cat':
+      return catCmd(args[0], currDir);
     default:
       return {
         lines: [
           text(`command not found: ${rawName}`, 'error'),
           text("Type 'help' for available commands.", 'dim'),
         ],
-      }
+      };
   }
 }

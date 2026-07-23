@@ -52,7 +52,7 @@ function moduleSeed(id: ModuleId): OutputLine[] {
             kind: 'text',
             segments: [
               { text: `${n}  `, tone: 'dim' },
-              { text: job.company.toUpperCase(), tone: 'accent' },
+              { text: `${job.company.toUpperCase()}.MD`, tone: 'accent' },
               { text: `  ${job.role}` },
             ],
           },
@@ -172,7 +172,7 @@ export function Terminal() {
       setHistIndex(null);
       setDraft('');
 
-      const result = runCommand(value, nextHistory);
+      const result = runCommand({input: value, history: nextHistory, currDir: module});
 
       if (result.module && result.clear) {
         stickModeRef.current = 'top';
