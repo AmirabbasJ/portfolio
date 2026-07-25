@@ -138,7 +138,6 @@ html.tv-powered-off #root {
   flex: 0 0 auto;
 }
 
-/* ——— System header ——— */
 .sys-header {
   flex: 0 0 auto;
   padding: 0.55rem 0 0.5rem;
@@ -147,8 +146,8 @@ html.tv-powered-off #root {
 }
 
 .sys-grid {
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  display: flex;
+  justify-content: space-between;
   gap: 0.25rem 0.85rem;
   align-items: start;
 }
@@ -193,7 +192,6 @@ html.tv-powered-off #root {
   letter-spacing: 0.02em;
 }
 
-/* ——— Main ——— */
 .os-main {
   flex: 1;
   min-height: 0;
@@ -358,7 +356,6 @@ html.tv-powered-off #root {
   color: var(--warn);
 }
 
-/* ——— Input ——— */
 .os-input {
   flex: 0 0 auto;
   display: flex;
@@ -436,7 +433,6 @@ html.tv-powered-off #root {
   }
 }
 
-/* ——— Module nav ——— */
 .mod-nav {
   flex: 0 0 auto;
   padding: 0.85rem 0 1.25rem;
@@ -481,11 +477,6 @@ html.tv-powered-off #root {
 }
 
 @media (max-width: 640px) {
-  .sys-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 0.35rem 0.65rem;
-  }
-
   .out-kv {
     grid-template-columns: 1fr;
     gap: 0.1rem;
