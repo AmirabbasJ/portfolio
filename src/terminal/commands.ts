@@ -94,24 +94,27 @@ function getCdCompletions(arg: string): string[] {
 export function getCompletions(partials: string[], currDir: string): string[] {
   const [q, ...args] = partials;
   if (!q) return [...COMMANDS];
-  if (q === 'cat') {
-    return getCatCompletions(args[0], currDir).map((file) => `${q} ${file}`);
-  }
-  if (q === 'exp' || q === 'experience') {
-    return getExpCompletions(args[0]).map((exp) => `${q} ${exp}`);
-  }
-  if (q === 'skills' || q === 'skill') {
-    return getSkillsCompletions(args[0]).map((skill) => `${q} ${skill}`);
-  }
-  if (q === 'cd') {
-    return getCdCompletions(args[0]).map((module) => `${q} ${module}`);
+
+  if (args.length > 0) {
+    if (q === 'cat') {
+      return getCatCompletions(args[0], currDir).map((file) => `${q} ${file}`);
+    }
+    if (q === 'exp' || q === 'experience') {
+      return getExpCompletions(args[0]).map((exp) => `${q} ${exp}`);
+    }
+    if (q === 'skills' || q === 'skill') {
+      return getSkillsCompletions(args[0]).map((skill) => `${q} ${skill}`);
+    }
+    if (q === 'cd') {
+      return getCdCompletions(args[0]).map((module) => `${q} ${module}`);
+    }
+
+    return [];
   }
 
-  return args.length > 0
-    ? []
-    : COMMANDS.filter((c) => {
-        return c.startsWith(q);
-      });
+  return COMMANDS.filter((c) => {
+    return c.startsWith(q);
+  });
 }
 
 function text(raw: string, tone?: OutputTone, gap?: 'lg'): OutputLine {
