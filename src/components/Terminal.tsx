@@ -22,12 +22,12 @@ import {
 } from '../terminal/commands';
 import { modules } from '../terminal/system';
 import { nextId } from '../utils/id';
+import { mod } from '../utils/mod';
 import { ModuleNav } from './ModuleNav';
 import { OutputBlock } from './OutputBlock';
 import { SystemHeader } from './SystemHeader';
 
 type ScrollLine =
-  // | { id: number; kind: 'autoComplete'; matches: string[]; selected?: number }
   | { id: number; kind: 'out'; lines: OutputLine[] }
   | { id: number; kind: 'typed'; text: string };
 
@@ -60,7 +60,6 @@ function moduleSeed(id: ModuleId): OutputLine[] {
       ];
 
     case 'contact':
-      // FIXME
       return [
         { kind: 'cmd', text: 'cat contact.md' },
         ...contactCmd().lines,
@@ -250,6 +249,37 @@ export function Terminal({ onShutdown }: TerminalProps) {
       return;
     }
 
+    if (e.key === 'Tab') {
+      const isBackward = e.shiftKey;
+      e.preventDefault();
+      setAutoComplete('');
+      const parts = input.split(/\s+/).map((i) => i.trim().toLowerCase());
+      if (parts.length > 2) return;
+      const matches = getCompletions(parts, module);
+
+      if (matches.length === 1) {
+        setInput(`${matches[0]} `);
+      } else if (matches.length > 1) {
+        stickModeRef.current = 'bottom';
+
+        if (autoCompleteMatches.length > 0) {
+          setSelectedMatchIndex((prev) => {
+            if (prev == null) return 0;
+            const newValue = isBackward ? prev - 1 : prev + 1;
+            return mod(newValue, 0, matches.length - 1);
+          });
+        } else {
+          setAutoCompleteMatches(matches);
+          setSelectedMatchIndex(0);
+        }
+      }
+
+      return;
+    }
+
+    setAutoCompleteMatches([]);
+    setSelectedMatchIndex(null);
+
     if (e.key === 'c' && e.ctrlKey) {
       e.preventDefault();
       stickModeRef.current = 'bottom';
@@ -268,31 +298,6 @@ export function Terminal({ onShutdown }: TerminalProps) {
       setAutoComplete('');
       stickModeRef.current = 'top';
       setScroll([{ id: nextId(), kind: 'out', lines: moduleSeed(module) }]);
-      return;
-    }
-
-    if (e.key === 'Tab') {
-      e.preventDefault();
-      setAutoComplete('');
-      const parts = input.split(/\s+/).map((i) => i.trim().toLowerCase());
-      if (parts.length > 2) return;
-      const matches = getCompletions(parts, module);
-
-      if (matches.length === 1) {
-        setInput(`${matches[0]} `);
-      } else if (matches.length > 1) {
-        stickModeRef.current = 'bottom';
-
-        if (autoCompleteMatches.length > 0) {
-          setSelectedMatchIndex((prev) =>
-            prev != null ? (prev + 1) % matches.length : 0
-          );
-        } else {
-          setAutoCompleteMatches(matches);
-          setSelectedMatchIndex(0);
-        }
-      }
-
       return;
     }
 
