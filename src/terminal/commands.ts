@@ -9,7 +9,7 @@ export type OutputSegment = {
 };
 
 export type OutputLine =
-  | { kind: 'text'; segments: OutputSegment[] }
+  | { kind: 'text'; segments: OutputSegment[]; gap?: 'lg' }
   | { kind: 'heading'; segments: OutputSegment[] }
   | { kind: 'p'; segments: OutputSegment[] }
   | { kind: 'cmd'; text: string }
@@ -108,8 +108,12 @@ export function getCompletions(partials: string[], currDir: string): string[] {
       });
 }
 
-function text(raw: string, tone?: OutputTone): OutputLine {
-  return { kind: 'text', segments: [{ text: raw, tone }] };
+function text(
+  raw: string,
+  tone?: OutputTone,
+  gap?: 'lg',
+): OutputLine {
+  return { kind: 'text', segments: [{ text: raw, tone }], gap };
 }
 
 function heading(raw: string, tone?: OutputTone): OutputLine {
@@ -193,7 +197,7 @@ export function experienceCmd(args: string[]): CommandResult {
 
   if (!query) {
     const lines: OutputLine[] = [
-      text(`${experience.length} entries — type: experience <company>`, 'dim'),
+      text(`${experience.length} entries — type: exp <company>`, 'dim'),
     ];
     experience.forEach((job, i) => {
       const n = String(i + 1).padStart(2, '0');
@@ -203,7 +207,7 @@ export function experienceCmd(args: string[]): CommandResult {
           { text: `${job.company.toUpperCase()}`, tone: 'accent' },
           { text: `  ${job.role}` },
         ),
-        text(`    ${job.location} · ${job.period}`, 'dim'),
+        text(`    ${job.location} · ${job.period}`, 'dim', 'lg'),
       );
     });
     return { lines, module: 'work' };
@@ -268,7 +272,12 @@ export function contactCmd(): CommandResult {
   const { contact } = profile;
   return {
     lines: [
-      { kind: 'kv', key: 'EMAIL', value: contact.email },
+      {
+        kind: 'kv',
+        key: 'EMAIL',
+        value: contact.email,
+        href: `mailto:${contact.email}`,
+      },
       {
         kind: 'kv',
         key: 'GITHUB',

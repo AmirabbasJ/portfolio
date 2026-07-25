@@ -54,7 +54,12 @@ export function OutputBlock({ lines }: Props) {
             )
           case 'text':
             return (
-              <div className="out-line" key={i}>
+              <div
+                className={
+                  line.gap === 'lg' ? 'out-line out-line--gap' : 'out-line'
+                }
+                key={i}
+              >
                 {line.segments.map((seg, si) => (
                   <span
                     key={si}

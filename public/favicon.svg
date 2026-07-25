@@ -1,13 +1,20 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" shape-rendering="crispEdges">
-  <rect width="16" height="16" fill="#1c1b2d"/>
-  <rect x="4" y="3" width="8" height="7" fill="#f4f4fb"/>
-  <rect x="3" y="5" width="1" height="4" fill="#f4f4fb"/>
-  <rect x="12" y="5" width="1" height="4" fill="#f4f4fb"/>
-  <rect x="5" y="5" width="2" height="2" fill="#1c1b2d"/>
-  <rect x="9" y="5" width="2" height="2" fill="#1c1b2d"/>
-  <rect x="7" y="7" width="1" height="2" fill="#1c1b2d"/>
-  <rect x="5" y="10" width="6" height="3" fill="#c1c1e0"/>
-  <rect x="5" y="10" width="1" height="3" fill="#1c1b2d"/>
-  <rect x="7" y="10" width="1" height="3" fill="#1c1b2d"/>
-  <rect x="9" y="10" width="1" height="3" fill="#1c1b2d"/>
+<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <g clip-path="url(#clip0_4_14)">
+    <path d="M16 0H0V16H16V0Z" fill="#1C1B2D" />
+    <path d="M12 3H4V10H12V3Z" fill="#F4F4FB" />
+    <path d="M4 5H3V9H4V5Z" fill="#F4F4FB" />
+    <path d="M13 5H12V9H13V5Z" fill="#F4F4FB" />
+    <path d="M7 5H5V7H7V5Z" fill="#1C1B2D" />
+    <path d="M11 5H9V7H11V5Z" fill="#1C1B2D" />
+    <path d="M8 7H7V9H8V7Z" fill="#1C1B2D" />
+    <path d="M10 10H5V11.5V13H10V10Z" fill="#C1C1E0" />
+    <path d="M5 10H4V13H5V10Z" fill="#1C1B2D" />
+    <path d="M7 10H6V13H7V10Z" fill="#1C1B2D" />
+    <path d="M9 10H8V13H9V10Z" fill="#1C1B2D" />
+  </g>
+  <defs>
+    <clipPath id="clip0_4_14">
+      <rect width="16" height="16" fill="white" />
+    </clipPath>
+  </defs>
 </svg>

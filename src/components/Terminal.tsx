@@ -39,7 +39,7 @@ function moduleSeed(id: ModuleId): OutputLine[] {
       ];
     case 'work': {
       const lines: OutputLine[] = [
-        { kind: 'cmd', text: 'experience' },
+        { kind: 'cmd', text: 'exp' },
         ...experienceCmd([]).lines,
       ];
       return lines;
@@ -253,7 +253,6 @@ export function Terminal() {
       return;
     }
 
-    // Module cycling when input empty (ZUI-style)
     if (!input && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')) {
       e.preventDefault();
       cycleModule(e.key === 'ArrowLeft' ? -1 : 1);

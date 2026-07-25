@@ -168,6 +168,10 @@ body {
   word-break: break-word;
 }
 
+.out-line--gap {
+  margin-bottom: 18px;
+}
+
 .out-heading {
   margin: 12px 0 6px;
   padding-bottom: 4px;
