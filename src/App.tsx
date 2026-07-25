@@ -12,14 +12,8 @@ export default function App() {
 
   const beginShutdown = useCallback(() => {
     setPhase('flash');
+    document.documentElement.classList.add('tv-powered-off');
   }, []);
-
-  useEffect(() => {
-    document.documentElement.classList.toggle(
-      'tv-powered-off',
-      phase !== 'live'
-    );
-  }, [phase]);
 
   useEffect(() => {
     if (phase !== 'flash') return;
