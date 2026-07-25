@@ -1,0 +1,16 @@
+import { defineConfig } from '@fullstacksjs/eslint-config';
+
+export default defineConfig({
+  typescript: {
+    tsconfigRootDir: import.meta.dirname,
+  },
+  rules: {
+    'no-fallthrough': ['error', { allowEmptyCase: true }],
+    'max-lines-per-function': 'off',
+    'max-statements': 'off',
+    complexity: 'off',
+    '@typescript-eslint/no-floating-promises': 'off',
+    'react-hooks/incompatible-library': 'off',
+  },
+  ignores: ['./src/database.types.ts', './eslint.config.mjs'],
+});

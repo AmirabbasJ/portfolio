@@ -1,11 +1,16 @@
+import type { KeyboardEvent } from 'react';
+
 import {
   useCallback,
   useEffect,
   useLayoutEffect,
   useRef,
   useState,
-  type KeyboardEvent,
 } from 'react';
+
+import type { OutputLine } from '../terminal/commands';
+import type { ModuleId } from '../terminal/system';
+
 import {
   aboutCmd,
   contactCmd,
@@ -14,20 +19,18 @@ import {
   runCommand,
   statusLines,
   whoamiLines,
-  type OutputLine,
 } from '../terminal/commands';
-import { modules, type ModuleId } from '../terminal/system';
+import { modules } from '../terminal/system';
+import { nextId } from '../utils/id';
 import { last } from '../utils/last';
 import { ModuleNav } from './ModuleNav';
 import { OutputBlock } from './OutputBlock';
 import { SystemHeader } from './SystemHeader';
 
 type ScrollLine =
+  | { id: number; kind: 'autoComplete'; text: string }
   | { id: number; kind: 'out'; lines: OutputLine[] }
   | { id: number; kind: 'typed'; text: string };
-
-let lineId = 0;
-const nextId = () => ++lineId;
 
 function moduleSeed(id: ModuleId): OutputLine[] {
   switch (id) {
@@ -38,6 +41,7 @@ function moduleSeed(id: ModuleId): OutputLine[] {
         { kind: 'cmd', text: 'cat status.txt' },
         ...statusLines().lines,
       ];
+
     case 'work': {
       const lines: OutputLine[] = [
         { kind: 'cmd', text: 'exp' },
@@ -45,6 +49,7 @@ function moduleSeed(id: ModuleId): OutputLine[] {
       ];
       return lines;
     }
+
     case 'about':
       return [
         { kind: 'cmd', text: 'cat about.txt' },
@@ -54,6 +59,7 @@ function moduleSeed(id: ModuleId): OutputLine[] {
           text: 'type skills  or  skills testing  for the inventory',
         },
       ];
+
     case 'contact':
       return [
         { kind: 'cmd', text: 'cat contact.md' },
@@ -68,9 +74,9 @@ function moduleSeed(id: ModuleId): OutputLine[] {
 
 type Power = 'on' | 'shutting';
 
-type TerminalProps = {
+interface TerminalProps {
   onShutdown: () => void;
-};
+}
 
 export function Terminal({ onShutdown }: TerminalProps) {
   const [module, setModule] = useState<ModuleId>('home');
@@ -86,9 +92,7 @@ export function Terminal({ onShutdown }: TerminalProps) {
   const bottomRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const stickModeRef = useRef<'top' | 'bottom'>('top');
-  const onShutdownRef = useRef(onShutdown);
-  onShutdownRef.current = onShutdown;
+  const stickModeRef = useRef<'bottom' | 'top'>('top');
 
   const placeholder = 'type a command (try: help)';
 
@@ -102,6 +106,7 @@ export function Terminal({ onShutdown }: TerminalProps) {
       });
       return;
     }
+
     bottomRef.current?.scrollIntoView({ block: 'end' });
   }, [scroll, module]);
 
@@ -126,11 +131,13 @@ export function Terminal({ onShutdown }: TerminalProps) {
     const fromHash = window.location.hash.replace('#', '') as ModuleId;
     if (modules.some((m) => m.id === fromHash) && fromHash !== 'home')
       goModule(fromHash);
+    // eslint-disable-next-line @eslint-react/exhaustive-deps
   }, []);
 
   const submit = useCallback(
     (raw: string) => {
       const value = raw.trim();
+
       if (!value.trim()) {
         setInput('');
         return;
@@ -157,7 +164,7 @@ export function Terminal({ onShutdown }: TerminalProps) {
         setInput('');
         setAutoComplete('');
         setPower('shutting');
-        window.setTimeout(() => onShutdownRef.current(), 480);
+        window.setTimeout(() => onShutdown(), 480);
         return;
       }
 
@@ -205,13 +212,14 @@ export function Terminal({ onShutdown }: TerminalProps) {
       ]);
       setInput('');
     },
-    [history, module],
+    // eslint-disable-next-line @eslint-react/exhaustive-deps
+    [history, module]
   );
 
-  const cycleModule = (dir: 1 | -1) => {
+  const cycleModule = (dir: -1 | 1) => {
     const idx = modules.findIndex((m) => m.id === module);
     const next = modules[(idx + dir + modules.length) % modules.length];
-    if (next) goModule(next.id);
+    goModule(next.id);
   };
 
   const onKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
@@ -247,8 +255,9 @@ export function Terminal({ onShutdown }: TerminalProps) {
       e.preventDefault();
       setAutoComplete('');
       const parts = input.split(/\s+/).map((i) => i.trim().toLowerCase());
-      if(parts.length > 2) return;
+      if (parts.length > 2) return;
       const matches = getCompletions(parts, module);
+
       if (matches.length === 1) {
         setInput(`${matches[0]} `);
       } else if (matches.length > 1) {
@@ -263,8 +272,7 @@ export function Terminal({ onShutdown }: TerminalProps) {
                 kind: 'text',
                 segments: [
                   {
-                    text: (matches).map(m => last(m.split(' ')))
-                      .join('   '),
+                    text: matches.map((m) => last(m.split(' '))).join('   '),
                     tone: 'dim',
                   },
                 ],
@@ -273,6 +281,7 @@ export function Terminal({ onShutdown }: TerminalProps) {
           },
         ]);
       }
+
       return;
     }
 
@@ -295,6 +304,7 @@ export function Terminal({ onShutdown }: TerminalProps) {
         setHistIndex(i);
         setInput(history[i] ?? '');
       }
+
       return;
     }
 
@@ -317,22 +327,24 @@ export function Terminal({ onShutdown }: TerminalProps) {
       <SystemHeader />
       <div className="os-rule" />
 
+      {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions */}
       <main
         className="os-main"
         onClick={focusInput}
+        onKeyDown={focusInput}
         role="application"
         aria-label="AJ operating system"
       >
         <div className="os-scroll" ref={scrollRef}>
           {scroll.map((block) =>
-            block.kind === 'typed' ? (
+            block.kind === 'typed' || block.kind === 'autoComplete' ? (
               <div className="out-line out-line--cmd" key={block.id}>
                 <span className="out-dollar">$</span>
                 <span>{block.text}</span>
               </div>
             ) : (
               <OutputBlock key={block.id} lines={block.lines} />
-            ),
+            )
           )}
           <div ref={bottomRef} />
         </div>
@@ -340,6 +352,7 @@ export function Terminal({ onShutdown }: TerminalProps) {
 
       <div className="os-rule" />
 
+      {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events */}
       <div className="os-input" onClick={focusInput}>
         <span className="os-input__prompt">
           <span className="tone-accent">aj@portfolio</span>
@@ -356,6 +369,7 @@ export function Terminal({ onShutdown }: TerminalProps) {
               const v = e.target.value;
 
               setInput(v);
+
               if (histIndex !== null) {
                 setHistIndex(null);
                 setDraft(v);
@@ -364,8 +378,9 @@ export function Terminal({ onShutdown }: TerminalProps) {
               const p = v.split(/\s+/).map((i) => i.trim().toLowerCase());
               if (p.length > 2) return;
               const matches = getCompletions(p, module);
+
               if (matches.length >= 1) {
-                setAutoComplete(matches[0].replace(v ?? '', '').trim());
+                setAutoComplete(matches[0].replace(v, '').trim());
               } else {
                 setAutoComplete('');
               }

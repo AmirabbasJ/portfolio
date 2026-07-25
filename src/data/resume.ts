@@ -10,16 +10,16 @@ export const profile = {
     linkedin: 'amirabbas-jalali',
     linkedinUrl: 'https://www.linkedin.com/in/amirabbas-jalali',
   },
-} as const
+} as const;
 
-export type Experience = {
-  company: string
-  location: string
-  role: string
-  period: string
-  summary: string
-  tech: string[]
-  highlights: string[]
+export interface Experience {
+  company: string;
+  location: string;
+  role: string;
+  period: string;
+  summary: string;
+  tech: string[];
+  highlights: string[];
 }
 
 export const experience: Experience[] = [
@@ -128,7 +128,7 @@ export const experience: Experience[] = [
       'Completed various front-end projects with diverse requirements and domains.',
     ],
   },
-]
+];
 
 export const skillGroups = [
   {
@@ -196,4 +196,4 @@ export const skillGroups = [
       'Linux',
     ],
   },
-] as const
+] as const;

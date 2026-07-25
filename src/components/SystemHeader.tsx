@@ -1,13 +1,13 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react';
 
-const SESSION_START = Date.now()
+const SESSION_START = Date.now();
 
 function formatSessionUptime(now = Date.now()): string {
-  const totalSec = Math.floor(Math.max(0, now - SESSION_START) / 1000)
-  const hours = Math.floor(totalSec / 3600)
-  const mins = Math.floor((totalSec % 3600) / 60)
-  const secs = totalSec % 60
-  return `${hours}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`
+  const totalSec = Math.floor(Math.max(0, now - SESSION_START) / 1000);
+  const hours = Math.floor(totalSec / 3600);
+  const mins = Math.floor((totalSec % 3600) / 60);
+  const secs = totalSec % 60;
+  return `${hours}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
 }
 
 function formatClock(now = new Date()) {
@@ -17,27 +17,27 @@ function formatClock(now = new Date()) {
       month: 'short',
       day: '2-digit',
     })
-    .toUpperCase()
+    .toUpperCase();
   const time = [
     String(now.getHours()).padStart(2, '0'),
     String(now.getMinutes()).padStart(2, '0'),
     String(now.getSeconds()).padStart(2, '0'),
-  ].join(':')
-  return { date, time }
+  ].join(':');
+  return { date, time };
 }
 
 export function SystemHeader() {
-  const [clock, setClock] = useState(() => formatClock())
-  const [uptime, setUptime] = useState(() => formatSessionUptime())
+  const [clock, setClock] = useState(() => formatClock());
+  const [uptime, setUptime] = useState(() => formatSessionUptime());
 
   useEffect(() => {
     const id = window.setInterval(() => {
-      const now = new Date()
-      setClock(formatClock(now))
-      setUptime(formatSessionUptime(now.getTime()))
-    }, 1000)
-    return () => window.clearInterval(id)
-  }, [])
+      const now = new Date();
+      setClock(formatClock(now));
+      setUptime(formatSessionUptime(now.getTime()));
+    }, 1000);
+    return () => window.clearInterval(id);
+  }, []);
 
   return (
     <header className="sys-header">
@@ -64,5 +64,5 @@ export function SystemHeader() {
         </div>
       </div>
     </header>
-  )
+  );
 }

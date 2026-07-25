@@ -1,31 +1,33 @@
+import type { ModuleId } from './system';
+
 import { experience, profile, skillGroups } from '../data/resume';
-import { modules, type ModuleId } from './system';
+import { modules } from './system';
 
-export type OutputTone = 'dim' | 'accent' | 'error' | 'label' | 'warn';
+export type OutputTone = 'accent' | 'dim' | 'error' | 'label' | 'warn';
 
-export type OutputSegment = {
+export interface OutputSegment {
   text: string;
   tone?: OutputTone;
-};
+}
 
 export type OutputLine =
-  | { kind: 'text'; segments: OutputSegment[]; gap?: 'lg' }
-  | { kind: 'heading'; segments: OutputSegment[] }
-  | { kind: 'p'; segments: OutputSegment[] }
-  | { kind: 'cmd'; text: string }
   | { kind: 'badge'; text: string }
-  | { kind: 'rule' }
+  | { kind: 'cmd'; text: string }
+  | { kind: 'heading'; segments: OutputSegment[] }
   | { kind: 'kv'; key: string; value: string; href?: string }
-  | { kind: 'tip'; text: string }
-  | { kind: 'mark' };
+  | { kind: 'mark' }
+  | { kind: 'p'; segments: OutputSegment[] }
+  | { kind: 'rule' }
+  | { kind: 'text'; segments: OutputSegment[]; gap?: 'lg' }
+  | { kind: 'tip'; text: string };
 
-export type CommandResult = {
+export interface CommandResult {
   lines: OutputLine[];
   openUrl?: string;
   clear?: boolean;
   module?: ModuleId;
   shutdown?: boolean;
-};
+}
 
 const COMMANDS = [
   'help',
@@ -67,37 +69,38 @@ const fileSystem = {
 
 function getCatCompletions(arg: string, currDir: string): string[] {
   const dirFiles = fileSystem[currDir as keyof typeof fileSystem];
-  return (
-    dirFiles
-      ?.filter((f) => f.fileName.toLowerCase().startsWith(arg))
-      .map((f) => f.fileName) ?? []
-  );
+  return dirFiles
+    .filter((f) => f.fileName.toLowerCase().startsWith(arg))
+    .map((f) => f.fileName);
 }
 
 function getExpCompletions(arg: string): string[] {
-  return getCatCompletions(arg, 'work').map(f => f.split('.')[0])
+  return getCatCompletions(arg, 'work').map((f) => f.split('.')[0]);
 }
 
 function getSkillsCompletions(arg: string): string[] {
-  return skillGroups.filter((g) => g.label.toLowerCase().startsWith(arg)).map(g => g.label)
+  return skillGroups
+    .filter((g) => g.label.toLowerCase().startsWith(arg))
+    .map((g) => g.label);
 }
-
 
 function getCdCompletions(arg: string): string[] {
   const dir = arg.replace(/^\//, '').replace(/\/$/, '');
-  return Object.keys(fileSystem).filter((m) => m.toLowerCase().startsWith(dir)).map((m) => `/${m}`);
+  return Object.keys(fileSystem)
+    .filter((m) => m.toLowerCase().startsWith(dir))
+    .map((m) => `/${m}`);
 }
 
 export function getCompletions(partials: string[], currDir: string): string[] {
   const [q, ...args] = partials;
   if (!q) return [...COMMANDS];
-  if (q === 'cat' ) {
+  if (q === 'cat') {
     return getCatCompletions(args[0], currDir).map((file) => `${q} ${file}`);
   }
-  if(q === 'exp' || q === 'experience'){
+  if (q === 'exp' || q === 'experience') {
     return getExpCompletions(args[0]).map((exp) => `${q} ${exp}`);
   }
-  if(q === 'skills' || q === 'skill'){
+  if (q === 'skills' || q === 'skill') {
     return getSkillsCompletions(args[0]).map((skill) => `${q} ${skill}`);
   }
   if (q === 'cd') {
@@ -111,11 +114,7 @@ export function getCompletions(partials: string[], currDir: string): string[] {
       });
 }
 
-function text(
-  raw: string,
-  tone?: OutputTone,
-  gap?: 'lg',
-): OutputLine {
+function text(raw: string, tone?: OutputTone, gap?: 'lg'): OutputLine {
   return { kind: 'text', segments: [{ text: raw, tone }], gap };
 }
 
@@ -166,13 +165,13 @@ export function whoamiLines(): OutputLine[] {
     mixed(
       { text: '  Frontend engineer who ships. ' },
       { text: profile.name, tone: 'accent' },
-      { text: ' — React & Next.js for 4+ years.' },
+      { text: ' — React & Next.js for 4+ years.' }
     ),
     text(
-      '  Building multi-tenant platforms, health dashboards, and production admin systems end-to-end.',
+      '  Building multi-tenant platforms, health dashboards, and production admin systems end-to-end.'
     ),
     text(
-      '  Currently freelancing on LinkDent — a B2B dental platform for clinics & practitioners.',
+      '  Currently freelancing on LinkDent — a B2B dental platform for clinics & practitioners.'
     ),
   ];
 }
@@ -208,10 +207,10 @@ export function experienceCmd(args: string[]): CommandResult {
       lines.push(
         mixed(
           { text: `${n}  `, tone: 'dim' },
-          { text: `${job.company.toUpperCase()}`, tone: 'accent' },
-          { text: `  ${job.role}` },
+          { text: job.company.toUpperCase(), tone: 'accent' },
+          { text: `  ${job.role}` }
         ),
-        text(`    ${job.location} · ${job.period}`, 'dim', 'lg'),
+        text(`    ${job.location} · ${job.period}`, 'dim', 'lg')
       );
     });
     return { lines, module: 'work' };
@@ -220,7 +219,7 @@ export function experienceCmd(args: string[]): CommandResult {
   const job = experience.find(
     (j) =>
       j.company.toLowerCase().includes(query) ||
-      j.location.toLowerCase().includes(query),
+      j.location.toLowerCase().includes(query)
   );
 
   if (!job) {
@@ -316,7 +315,7 @@ function fetchCmd(): CommandResult {
 function catCmd(arg: string, curDir: string): CommandResult {
   const fileName = arg;
   const dirFiles = fileSystem[curDir as keyof typeof fileSystem];
-  const file = dirFiles?.find((f) => f.fileName === fileName);
+  const file = dirFiles.find((f) => f.fileName === fileName);
   return file?.content ?? { lines: [text('file not found')] };
 }
 
@@ -326,7 +325,7 @@ function ls(currDir: string): CommandResult {
   return {
     lines: [
       { kind: 'cmd', text: 'ls -la' },
-      ...(dirFiles?.map((f) => text(`-rw-  ${f.fileName}`)) ?? []),
+      ...dirFiles.map((f) => text(`-rw-  ${f.fileName}`)),
       text(`cd <module> or click the nav below`, 'dim'),
     ],
   };
@@ -334,9 +333,7 @@ function ls(currDir: string): CommandResult {
 
 function shutdownCmd(): CommandResult {
   return {
-    lines: [
-      text('The system is going down NOW!', 'error'),
-    ],
+    lines: [text('The system is going down NOW!', 'error')],
     shutdown: true,
   };
 }
@@ -347,8 +344,9 @@ function cdCmd(args: string[]): CommandResult {
     (m) =>
       m.id === target ||
       m.label.toLowerCase() === target.toLowerCase() ||
-      m.index === target,
+      m.index === target
   );
+
   if (!mod) {
     return {
       lines: [
@@ -357,6 +355,7 @@ function cdCmd(args: string[]): CommandResult {
       ],
     };
   }
+
   return { lines: [], module: mod.id, clear: true };
 }
 
@@ -377,52 +376,73 @@ export function runCommand({
   const name = rawName.toLowerCase();
 
   switch (name) {
-    case 'shutdown': 
+    case 'shutdown':
       return shutdownCmd();
+
     case 'help':
       return help();
+
     case 'home':
       return { lines: [], module: 'home', clear: true };
+
     case 'work':
       return { ...experienceCmd([]), clear: true, module: 'work' };
+
     case 'experience':
+
     case 'exp':
       return experienceCmd(args);
+
     case 'about':
       if (args.length === 0) return { lines: [], module: 'about', clear: true };
       return skillsCmd(args);
+
     case 'contact':
       return { ...contactCmd(), clear: true };
+
     case 'whoami':
       return { lines: whoamiLines() };
+
     case 'skills':
+
     case 'skill':
       return skillsCmd(args);
+
     case 'status':
       return { lines: statusLines().lines };
+
     case 'github':
+
     case 'gh':
       return {
         lines: [text(`Opening ${profile.contact.githubUrl} …`, 'dim')],
         openUrl: profile.contact.githubUrl,
       };
+
     case 'linkedin':
+
     case 'li':
       return {
         lines: [text(`Opening ${profile.contact.linkedinUrl} …`, 'dim')],
         openUrl: profile.contact.linkedinUrl,
       };
+
     case 'info':
       return fetchCmd();
+
     case 'ls':
       return args.length > 0
         ? { lines: [text("ls doesn't work with arguments")] }
         : ls(currDir);
+
     case 'cd':
       return cdCmd(args);
+
     case 'clear':
+
     case 'cls':
       return { lines: [], clear: true };
+
     case 'history':
       return {
         lines:
@@ -430,12 +450,16 @@ export function runCommand({
             ? [text('(empty)', 'dim')]
             : history.map((h, i) => text(`  ${i + 1}  ${h}`)),
       };
+
     case 'echo':
       return { lines: [text(args.join(' '))] };
+
     case 'sudo':
       return { lines: [text('permission denied', 'error')] };
+
     case 'cat':
       return catCmd(args[0], currDir);
+
     default:
       return {
         lines: [

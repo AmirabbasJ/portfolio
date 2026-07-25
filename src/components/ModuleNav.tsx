@@ -1,8 +1,10 @@
-import { modules, type ModuleId } from '../terminal/system'
+import type { ModuleId } from '../terminal/system';
 
-type ModuleNavProps = {
-  active: ModuleId
-  onSelect: (id: ModuleId) => void
+import { modules } from '../terminal/system';
+
+interface ModuleNavProps {
+  active: ModuleId;
+  onSelect: (id: ModuleId) => void;
 }
 
 export function ModuleNav({ active, onSelect }: ModuleNavProps) {
@@ -13,7 +15,7 @@ export function ModuleNav({ active, onSelect }: ModuleNavProps) {
       </p>
       <ul className="mod-nav__list">
         {modules.map((mod) => {
-          const isActive = mod.id === active
+          const isActive = mod.id === active;
           return (
             <li key={mod.id}>
               <button
@@ -25,9 +27,9 @@ export function ModuleNav({ active, onSelect }: ModuleNavProps) {
                 /{mod.label}
               </button>
             </li>
-          )
+          );
         })}
       </ul>
     </nav>
-  )
+  );
 }

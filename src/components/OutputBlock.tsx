@@ -1,8 +1,10 @@
-import type { OutputLine } from '../terminal/commands'
-import { AsciiMark } from './AsciiMark'
+/* eslint-disable @eslint-react/no-array-index-key */
+import type { OutputLine } from '../terminal/commands';
 
-type Props = {
-  lines: OutputLine[]
+import { AsciiMark } from './AsciiMark';
+
+interface Props {
+  lines: OutputLine[];
 }
 
 export function OutputBlock({ lines }: Props) {
@@ -11,23 +13,27 @@ export function OutputBlock({ lines }: Props) {
       {lines.map((line, i) => {
         switch (line.kind) {
           case 'rule':
-            return <div className="out-rule" key={i} />
+            return <div className="out-rule" key={i} />;
+
           case 'mark':
-            return <AsciiMark key={i} />
+            return <AsciiMark key={i} />;
+
           case 'cmd':
             return (
               <div className="out-line out-line--cmd" key={i}>
                 <span className="out-dollar">$</span>
                 <span>{line.text}</span>
               </div>
-            )
+            );
+
           case 'badge':
             return (
               <div className="out-badge" key={i}>
                 <span className="out-badge__dot" aria-hidden="true" />
                 <span>{line.text}</span>
               </div>
-            )
+            );
+
           case 'kv':
             return (
               <div className="out-kv" key={i}>
@@ -45,13 +51,15 @@ export function OutputBlock({ lines }: Props) {
                   <span className="out-kv__v">{line.value}</span>
                 )}
               </div>
-            )
+            );
+
           case 'tip':
             return (
               <div className="out-tip" key={i}>
                 TIP: {line.text}
               </div>
-            )
+            );
+
           case 'text':
             return (
               <div
@@ -69,7 +77,8 @@ export function OutputBlock({ lines }: Props) {
                   </span>
                 ))}
               </div>
-            )
+            );
+
           case 'heading':
             return (
               <div className="out-heading" key={i}>
@@ -82,7 +91,8 @@ export function OutputBlock({ lines }: Props) {
                   </span>
                 ))}
               </div>
-            )
+            );
+
           case 'p':
             return (
               <p className="out-p" key={i}>
@@ -95,11 +105,12 @@ export function OutputBlock({ lines }: Props) {
                   </span>
                 ))}
               </p>
-            )
+            );
+
           default:
-            return null
+            return null;
         }
       })}
     </>
-  )
+  );
 }
