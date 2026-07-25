@@ -22,13 +22,12 @@ import {
 } from '../terminal/commands';
 import { modules } from '../terminal/system';
 import { nextId } from '../utils/id';
-import { last } from '../utils/last';
 import { ModuleNav } from './ModuleNav';
 import { OutputBlock } from './OutputBlock';
 import { SystemHeader } from './SystemHeader';
 
 type ScrollLine =
-  | { id: number; kind: 'autoComplete'; text: string }
+  // | { id: number; kind: 'autoComplete'; matches: string[]; selected?: number }
   | { id: number; kind: 'out'; lines: OutputLine[] }
   | { id: number; kind: 'typed'; text: string };
 
@@ -61,6 +60,7 @@ function moduleSeed(id: ModuleId): OutputLine[] {
       ];
 
     case 'contact':
+      // FIXME
       return [
         { kind: 'cmd', text: 'cat contact.md' },
         ...contactCmd().lines,
@@ -88,10 +88,21 @@ export function Terminal({ onShutdown }: TerminalProps) {
   const [histIndex, setHistIndex] = useState<number | null>(null);
   const [draft, setDraft] = useState('');
   const [autoComplete, setAutoComplete] = useState<string>('');
+  const [autoCompleteMatches, setAutoCompleteMatches] = useState<string[]>([]);
+  const [selectedMatchIndex, setSelectedMatchIndex] = useState<number | null>(
+    null
+  );
+
   const [power, setPower] = useState<Power>('on');
   const bottomRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const selectedMatch =
+    selectedMatchIndex == null
+      ? null
+      : autoCompleteMatches.at(selectedMatchIndex);
+
   const stickModeRef = useRef<'bottom' | 'top'>('top');
 
   const placeholder = 'type a command (try: help)';
@@ -224,6 +235,15 @@ export function Terminal({ onShutdown }: TerminalProps) {
 
   const onKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
+      if (selectedMatch) {
+        e.preventDefault();
+        setInput(`${selectedMatch} `);
+        setAutoComplete('');
+        setAutoCompleteMatches([]);
+        setSelectedMatchIndex(null);
+        return;
+      }
+
       e.preventDefault();
       submit(input);
       setAutoComplete('');
@@ -262,24 +282,15 @@ export function Terminal({ onShutdown }: TerminalProps) {
         setInput(`${matches[0]} `);
       } else if (matches.length > 1) {
         stickModeRef.current = 'bottom';
-        setScroll((prev) => [
-          ...prev,
-          {
-            id: nextId(),
-            kind: 'out',
-            lines: [
-              {
-                kind: 'text',
-                segments: [
-                  {
-                    text: matches.map((m) => last(m.split(' '))).join('   '),
-                    tone: 'dim',
-                  },
-                ],
-              },
-            ],
-          },
-        ]);
+
+        if (autoCompleteMatches.length > 0) {
+          setSelectedMatchIndex((prev) =>
+            prev != null ? (prev + 1) % matches.length : 0
+          );
+        } else {
+          setAutoCompleteMatches(matches);
+          setSelectedMatchIndex(0);
+        }
       }
 
       return;
@@ -337,7 +348,7 @@ export function Terminal({ onShutdown }: TerminalProps) {
       >
         <div className="os-scroll" ref={scrollRef}>
           {scroll.map((block) =>
-            block.kind === 'typed' || block.kind === 'autoComplete' ? (
+            block.kind === 'typed' ? (
               <div className="out-line out-line--cmd" key={block.id}>
                 <span className="out-dollar">$</span>
                 <span>{block.text}</span>
@@ -345,6 +356,18 @@ export function Terminal({ onShutdown }: TerminalProps) {
             ) : (
               <OutputBlock key={block.id} lines={block.lines} />
             )
+          )}
+          {autoCompleteMatches.length > 0 && (
+            <div className="out-line out-line--autoComplete">
+              {autoCompleteMatches.map((m, index) => (
+                <div
+                  className={`out-line tone-dim out-line--autoComplete-item ${selectedMatchIndex === index ? 'is-active' : ''}`}
+                  key={m}
+                >
+                  {m.split(' ').at(-1)}
+                </div>
+              ))}
+            </div>
           )}
           <div ref={bottomRef} />
         </div>

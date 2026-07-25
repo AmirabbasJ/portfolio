@@ -220,6 +220,35 @@ html.tv-powered-off #root {
   margin-bottom: 18px;
 }
 
+.out-line--autoComplete {
+  margin: 0 0 6px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.5rem;
+}
+
+.out-line--autoComplete-item {
+  font: inherit;
+  border: 0;
+  background: transparent;
+  color: var(--dim);
+  cursor: pointer;
+  padding: 0.35rem 0.55rem;
+  letter-spacing: 0.03em;
+  transition:
+    color 0.12s ease,
+    background 0.12s ease;
+}
+
+.out-line--autoComplete-item.is-active {
+  color: var(--bg-deep);
+  background: var(--accent);
+  font-weight: 500;
+}
+
 .out-heading {
   margin: 12px 0 6px;
   padding-bottom: 4px;
