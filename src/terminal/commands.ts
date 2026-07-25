@@ -84,7 +84,8 @@ function getSkillsCompletions(arg: string): string[] {
 
 
 function getCdCompletions(arg: string): string[] {
-  return modules.filter((m) => m.id.toLowerCase().startsWith(arg)).map((m) => m.id);
+  const dir = arg.replace(/^\//, '').replace(/\/$/, '');
+  return Object.keys(fileSystem).filter((m) => m.toLowerCase().startsWith(dir)).map((m) => `/${m}`);
 }
 
 export function getCompletions(partials: string[], currDir: string): string[] {
@@ -340,6 +341,25 @@ function shutdownCmd(): CommandResult {
   };
 }
 
+function cdCmd(args: string[]): CommandResult {
+  const target = (args[0] ?? '').replace(/^\//, '').replace(/\/$/, '');
+  const mod = modules.find(
+    (m) =>
+      m.id === target ||
+      m.label.toLowerCase() === target.toLowerCase() ||
+      m.index === target,
+  );
+  if (!mod) {
+    return {
+      lines: [
+        text(`cd: no such module: ${args[0] ?? ''}`, 'error'),
+        text(`modules: ${modules.map((m) => m.id).join(', ')}`, 'dim'),
+      ],
+    };
+  }
+  return { lines: [], module: mod.id, clear: true };
+}
+
 interface RunCommandOptions {
   input: string;
   history: string[];
@@ -398,24 +418,8 @@ export function runCommand({
       return args.length > 0
         ? { lines: [text("ls doesn't work with arguments")] }
         : ls(currDir);
-    case 'cd': {
-      const target = (args[0] ?? '').replace(/^\.\//, '').replace(/\/$/, '');
-      const mod = modules.find(
-        (m) =>
-          m.id === target ||
-          m.label.toLowerCase() === target.toLowerCase() ||
-          m.index === target,
-      );
-      if (!mod) {
-        return {
-          lines: [
-            text(`cd: no such module: ${args[0] ?? ''}`, 'error'),
-            text(`modules: ${modules.map((m) => m.id).join(', ')}`, 'dim'),
-          ],
-        };
-      }
-      return { lines: [], module: mod.id, clear: true };
-    }
+    case 'cd':
+      return cdCmd(args);
     case 'clear':
     case 'cls':
       return { lines: [], clear: true };
