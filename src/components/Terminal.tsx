@@ -31,6 +31,13 @@ type ScrollLine =
   | { id: number; kind: 'out'; lines: OutputLine[] }
   | { id: number; kind: 'typed'; text: string };
 
+function getModuleFromHash(): ModuleId | null {
+  const fromHash = window.location.hash.replace('#', '') as ModuleId;
+  if (modules.some((m) => m.id === fromHash) && fromHash !== 'home')
+    return fromHash;
+  return null;
+}
+
 function moduleSeed(id: ModuleId): OutputLine[] {
   switch (id) {
     case 'home':
@@ -78,10 +85,14 @@ interface TerminalProps {
 }
 
 export function Terminal({ onShutdown }: TerminalProps) {
-  const [module, setModule] = useState<ModuleId>('home');
+  const [module, setModule] = useState<ModuleId>(
+    () => getModuleFromHash() ?? 'home'
+  );
+
   const [scroll, setScroll] = useState<ScrollLine[]>(() => [
-    { id: nextId(), kind: 'out', lines: moduleSeed('home') },
+    { id: nextId(), kind: 'out', lines: moduleSeed(module) },
   ]);
+
   const [input, setInput] = useState('');
   const [history, setHistory] = useState<string[]>([]);
   const [histIndex, setHistIndex] = useState<number | null>(null);
@@ -135,13 +146,6 @@ export function Terminal({ onShutdown }: TerminalProps) {
     setInput('');
     setHistIndex(null);
     window.location.hash = id;
-  }, []);
-
-  useEffect(() => {
-    const fromHash = window.location.hash.replace('#', '') as ModuleId;
-    if (modules.some((m) => m.id === fromHash) && fromHash !== 'home')
-      goModule(fromHash);
-    // eslint-disable-next-line @eslint-react/exhaustive-deps
   }, []);
 
   const submit = useCallback(

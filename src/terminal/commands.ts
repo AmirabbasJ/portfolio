@@ -219,7 +219,7 @@ export function experienceCmd(args: string[]): CommandResult {
         text(`    ${job.location} · ${job.period}`, 'dim', 'lg')
       );
     });
-    return { lines, module: 'work' };
+    return { lines };
   }
 
   const job = experience.find(
@@ -248,7 +248,6 @@ export function experienceCmd(args: string[]): CommandResult {
       heading('HIGHLIGHTS', 'dim'),
       ...job.highlights.map((h) => para(`› ${h}`)),
     ],
-    module: 'work',
   };
 }
 
@@ -274,7 +273,7 @@ function skillsCmd(args: string[]): CommandResult {
     lines.push(text(`  ${group.items.join(' · ')}`));
   }
 
-  return { lines, module: 'about' };
+  return { lines };
 }
 
 export function contactCmd(): CommandResult {
@@ -300,7 +299,6 @@ export function contactCmd(): CommandResult {
         href: contact.linkedinUrl,
       },
     ],
-    module: 'contact',
   };
 }
 
@@ -388,23 +386,13 @@ export function runCommand({
     case 'help':
       return help();
 
-    case 'home':
-      return { lines: [], module: 'home', clear: true };
-
-    case 'work':
-      return { ...experienceCmd([]), clear: true, module: 'work' };
-
     case 'experience':
 
     case 'exp':
       return experienceCmd(args);
 
-    case 'about':
-      if (args.length === 0) return { lines: [], module: 'about', clear: true };
-      return skillsCmd(args);
-
     case 'contact':
-      return { ...contactCmd(), clear: true };
+      return contactCmd();
 
     case 'whoami':
       return { lines: whoamiLines() };

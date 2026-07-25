@@ -221,9 +221,8 @@ html.tv-powered-off #root {
 }
 
 .out-line--autoComplete {
-  margin: 0 0 6px;
+  margin: 12px 0 6px;
   list-style: none;
-  margin: 0;
   padding: 0;
   display: flex;
   flex-wrap: wrap;

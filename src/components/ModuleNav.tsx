@@ -11,7 +11,7 @@ export function ModuleNav({ active, onSelect }: ModuleNavProps) {
   return (
     <nav className="mod-nav" aria-label="Modules">
       <p className="mod-nav__hint">
-        <span className="tone-dim">SELECT MODULE [← → or click]</span>
+        <span className="tone-dim">SELECT MODULE [← → or click or cd]</span>
       </p>
       <ul className="mod-nav__list">
         {modules.map((mod) => {
