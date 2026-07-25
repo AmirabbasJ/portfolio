@@ -1,14 +1,6 @@
 import { useEffect, useState } from 'react';
 
-const SESSION_START = Date.now();
-
-function formatSessionUptime(now = Date.now()): string {
-  const totalSec = Math.floor(Math.max(0, now - SESSION_START) / 1000);
-  const hours = Math.floor(totalSec / 3600);
-  const mins = Math.floor((totalSec % 3600) / 60);
-  const secs = totalSec % 60;
-  return `${hours}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-}
+import { formatUptime } from '../terminal/system';
 
 function formatClock(now = new Date()) {
   const date = now
@@ -28,13 +20,13 @@ function formatClock(now = new Date()) {
 
 export function SystemHeader() {
   const [clock, setClock] = useState(() => formatClock());
-  const [uptime, setUptime] = useState(() => formatSessionUptime());
+  const [uptime, setUptime] = useState(() => formatUptime());
 
   useEffect(() => {
     const id = window.setInterval(() => {
       const now = new Date();
       setClock(formatClock(now));
-      setUptime(formatSessionUptime(now.getTime()));
+      setUptime(formatUptime(now));
     }, 1000);
     return () => window.clearInterval(id);
   }, []);
