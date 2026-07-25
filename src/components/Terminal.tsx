@@ -80,6 +80,8 @@ function moduleSeed(id: ModuleId): OutputLine[] {
 
 type Power = 'on' | 'shutting';
 
+const placeholder = 'type a command (try: help)';
+
 interface TerminalProps {
   onShutdown: () => void;
 }
@@ -115,8 +117,6 @@ export function Terminal({ onShutdown }: TerminalProps) {
 
   const stickModeRef = useRef<'bottom' | 'top'>('top');
 
-  const placeholder = 'type a command (try: help)';
-
   useLayoutEffect(() => {
     if (stickModeRef.current === 'top') {
       const el = scrollRef.current;
@@ -129,7 +129,7 @@ export function Terminal({ onShutdown }: TerminalProps) {
     }
 
     bottomRef.current?.scrollIntoView({ block: 'end' });
-  }, [scroll, module]);
+  }, [scroll, module, autoCompleteMatches.length, selectedMatchIndex]);
 
   const focusInput = useCallback(() => {
     inputRef.current?.focus({ preventScroll: true });
