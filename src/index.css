@@ -38,6 +38,56 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+.crt-stage {
+  position: relative;
+  min-height: 100%;
+  height: 100%;
+}
+
+.tv-flash {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: #fff;
+  transform-origin: 50% 50%;
+  pointer-events: none;
+  animation: crt-shutdown 600ms ease-in forwards;
+}
+
+@keyframes crt-shutdown {
+  0% {
+    opacity: 1;
+    transform: scale(1, 1);
+  }
+  28% {
+    opacity: 1;
+    transform: scale(1, 1);
+  }
+  52% {
+    opacity: 1;
+    transform: scale(1, 0.004);
+  }
+  74% {
+    opacity: 1;
+    transform: scale(0.08, 0.004);
+  }
+  90% {
+    opacity: 1;
+    transform: scale(0, 0.004);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0, 0);
+  }
+}
+
+html.tv-powered-off,
+html.tv-powered-off body,
+html.tv-powered-off #root {
+  background: #000;
+  overflow: hidden;
+}
+
 .parallax-bg {
   position: fixed;
   inset: 0;
@@ -452,5 +502,23 @@ body {
   .term-caret,
   .out-badge__dot {
     animation: none;
+  }
+
+  .tv-flash {
+    animation: crt-shutdown-reduced 0.15s ease-out forwards;
+  }
+
+  @keyframes crt-shutdown-reduced {
+    from {
+      opacity: 0;
+    }
+    40% {
+      opacity: 1;
+      transform: scale(1, 1);
+    }
+    to {
+      opacity: 0;
+      transform: scale(1, 1);
+    }
   }
 }

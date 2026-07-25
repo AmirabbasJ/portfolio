@@ -24,6 +24,7 @@ export type CommandResult = {
   openUrl?: string;
   clear?: boolean;
   module?: ModuleId;
+  shutdown?: boolean;
 };
 
 const COMMANDS = [
@@ -46,6 +47,7 @@ const COMMANDS = [
   'status',
   'cd',
   'cat',
+  'shutdown',
 ].toSorted();
 
 const fileSystem = {
@@ -143,6 +145,7 @@ function help(): CommandResult {
       text('  info                   System summary'),
       text('  ls                     Virtual filesystem'),
       text('  clear                  Clear scrollback'),
+      text('  shutdown               Probably not a good idea'),
       {
         kind: 'tip',
         text: '← → modules when input empty · Tab autocomplete · Ctrl+L clear',
@@ -328,6 +331,15 @@ function ls(currDir: string): CommandResult {
   };
 }
 
+function shutdownCmd(): CommandResult {
+  return {
+    lines: [
+      text('The system is going down NOW!', 'error'),
+    ],
+    shutdown: true,
+  };
+}
+
 interface RunCommandOptions {
   input: string;
   history: string[];
@@ -345,6 +357,8 @@ export function runCommand({
   const name = rawName.toLowerCase();
 
   switch (name) {
+    case 'shutdown': 
+      return shutdownCmd();
     case 'help':
       return help();
     case 'home':

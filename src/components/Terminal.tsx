@@ -17,6 +17,7 @@ import {
   type OutputLine,
 } from '../terminal/commands';
 import { modules, type ModuleId } from '../terminal/system';
+import { last } from '../utils/last';
 import { ModuleNav } from './ModuleNav';
 import { OutputBlock } from './OutputBlock';
 import { SystemHeader } from './SystemHeader';
@@ -65,7 +66,13 @@ function moduleSeed(id: ModuleId): OutputLine[] {
   }
 }
 
-export function Terminal() {
+type Power = 'on' | 'shutting';
+
+type TerminalProps = {
+  onShutdown: () => void;
+};
+
+export function Terminal({ onShutdown }: TerminalProps) {
   const [module, setModule] = useState<ModuleId>('home');
   const [scroll, setScroll] = useState<ScrollLine[]>(() => [
     { id: nextId(), kind: 'out', lines: moduleSeed('home') },
@@ -75,10 +82,13 @@ export function Terminal() {
   const [histIndex, setHistIndex] = useState<number | null>(null);
   const [draft, setDraft] = useState('');
   const [autoComplete, setAutoComplete] = useState<string>('');
+  const [power, setPower] = useState<Power>('on');
   const bottomRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const stickModeRef = useRef<'top' | 'bottom'>('top');
+  const onShutdownRef = useRef(onShutdown);
+  onShutdownRef.current = onShutdown;
 
   const placeholder = 'type a command (try: help)';
 
@@ -136,6 +146,20 @@ export function Terminal() {
         history: nextHistory,
         currDir: module,
       });
+
+      if (result.shutdown) {
+        stickModeRef.current = 'bottom';
+        setScroll((prev) => [
+          ...prev,
+          { id: nextId(), kind: 'typed', text: value },
+          { id: nextId(), kind: 'out', lines: result.lines },
+        ]);
+        setInput('');
+        setAutoComplete('');
+        setPower('shutting');
+        window.setTimeout(() => onShutdownRef.current(), 480);
+        return;
+      }
 
       if (result.module && result.clear) {
         stickModeRef.current = 'top';
@@ -239,8 +263,7 @@ export function Terminal() {
                 kind: 'text',
                 segments: [
                   {
-                    text: matches
-                      .map((m) => m.replace(parts[0] ?? '', ''))
+                    text: (matches).map(m => last(m.split(' ')))
                       .join('   '),
                     tone: 'dim',
                   },
@@ -328,6 +351,7 @@ export function Terminal() {
             className="term-input"
             value={input}
             placeholder={placeholder}
+            disabled={power !== 'on'}
             onChange={(e) => {
               const v = e.target.value;
 
@@ -338,11 +362,8 @@ export function Terminal() {
               }
               if (v.trim() === '') return;
               const p = v.split(/\s+/).map((i) => i.trim().toLowerCase());
-              if(p.length > 2) return;
-              const matches = getCompletions(
-                p,
-                module,
-              );
+              if (p.length > 2) return;
+              const matches = getCompletions(p, module);
               if (matches.length >= 1) {
                 setAutoComplete(matches[0].replace(v ?? '', '').trim());
               } else {

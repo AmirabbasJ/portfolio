@@ -1,12 +1,55 @@
-import { ParallaxBg } from './components/ParallaxBg'
-import { Terminal } from './components/Terminal'
-import './index.css'
+import { useCallback, useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
+import { ParallaxBg } from './components/ParallaxBg';
+import { Terminal } from './components/Terminal';
+import './index.css';
+
+type Phase = 'live' | 'flash' | 'dead'
 
 export default function App() {
+  const [phase, setPhase] = useState<Phase>('live')
+
+  const beginShutdown = useCallback(() => {
+    setPhase('flash')
+  }, [])
+
+  useEffect(() => {
+    document.documentElement.classList.toggle(
+      'tv-powered-off',
+      phase !== 'live',
+    )
+  }, [phase])
+
+  useEffect(() => {
+    if (phase !== 'flash') return
+    const flash = document.querySelector('.tv-flash')
+    const finish = (e?: Event) => {
+      if (e && e.target !== flash) return
+      setPhase('dead')
+    }
+    flash?.addEventListener('animationend', finish)
+    const fallback = window.setTimeout(() => setPhase('dead'), 800)
+    return () => {
+      flash?.removeEventListener('animationend', finish)
+      window.clearTimeout(fallback)
+    }
+  }, [phase])
+
+  if (phase === 'dead') return null
+
   return (
     <>
-      <ParallaxBg />
-      <Terminal />
+      {phase === 'live' && (
+        <div className="crt-stage">
+          <ParallaxBg />
+          <Terminal onShutdown={beginShutdown} />
+        </div>
+      )}
+      {phase === 'flash' &&
+        createPortal(
+          <div className="tv-flash" aria-hidden="true" />,
+          document.body,
+        )}
     </>
   )
 }
