@@ -235,7 +235,6 @@ html.tv-powered-off #root {
   border: 0;
   background: transparent;
   color: var(--dim);
-  cursor: pointer;
   padding: 0.35rem 0.55rem;
   letter-spacing: 0.03em;
   transition:
