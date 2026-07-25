@@ -145,7 +145,10 @@ function help(): CommandResult {
       text('  info                   System summary'),
       text('  ls                     Virtual filesystem'),
       text('  clear                  Clear scrollback'),
-      text('  shutdown               Probably not a good idea'),
+      mixed(
+        { text: '  shutdown               ' },
+        { text: 'Probably not a good idea', tone: 'error' }
+      ),
       {
         kind: 'tip',
         text: '← → modules when input empty · Tab autocomplete · Ctrl+L clear',
@@ -333,7 +336,7 @@ function ls(currDir: string): CommandResult {
 
 function shutdownCmd(): CommandResult {
   return {
-    lines: [text('The system is going down NOW!', 'error')],
+    lines: [text('shutting down... ')],
     shutdown: true,
   };
 }
