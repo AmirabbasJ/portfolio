@@ -447,7 +447,7 @@ export function Terminal({ onShutdown }: TerminalProps) {
 
               const p = v.split(/\s+/).map((i) => i.trim().toLowerCase());
 
-              if (p.length >= 2) {
+              if (p.length > 2) {
                 setAutoComplete('');
                 return;
               }
