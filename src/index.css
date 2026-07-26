@@ -104,8 +104,7 @@ html.tv-powered-off #root {
   background-position: center;
   background-size: 55%;
   background-repeat: no-repeat;
-  filter: blur(4px);
-  opacity: 0.3;
+  opacity: 0.5;
   transform-style: preserve-3d;
   will-change: transform;
 }
