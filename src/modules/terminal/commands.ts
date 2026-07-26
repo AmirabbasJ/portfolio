@@ -15,7 +15,7 @@ export type OutputLine =
   | { kind: 'badge'; text: string }
   | { kind: 'cmd'; text: string }
   | { kind: 'heading'; segments: OutputSegment[] }
-  | { kind: 'kv'; key: string; value: string; href?: string }
+  | { kind: 'key-value'; key: string; value: string; href?: string }
   | { kind: 'mark' }
   | { kind: 'p'; segments: OutputSegment[] }
   | { kind: 'rule' }
@@ -180,13 +180,17 @@ export function whoamiLines(): OutputLine[] {
 export function statusLines(): CommandResult {
   return {
     lines: [
-      { kind: 'kv', key: 'LOCATION', value: 'Remote · IR / open worldwide' },
       {
-        kind: 'kv',
+        kind: 'key-value',
+        key: 'LOCATION',
+        value: 'Remote · IR / open worldwide',
+      },
+      {
+        kind: 'key-value',
         key: 'FOCUS',
         value: 'React · Next.js · TypeScript',
       },
-      { kind: 'kv', key: 'CONTACT', value: profile.contact.email },
+      { kind: 'key-value', key: 'CONTACT', value: profile.contact.email },
       {
         kind: 'badge',
         text: 'OPEN TO WORK — FREELANCE + FULL-TIME',
@@ -276,19 +280,19 @@ export function contactCmd(): CommandResult {
   return {
     lines: [
       {
-        kind: 'kv',
+        kind: 'key-value',
         key: 'EMAIL',
         value: contact.email,
         href: `mailto:${contact.email}`,
       },
       {
-        kind: 'kv',
+        kind: 'key-value',
         key: 'GITHUB',
         value: contact.github,
         href: contact.githubUrl,
       },
       {
-        kind: 'kv',
+        kind: 'key-value',
         key: 'LINKEDIN',
         value: contact.linkedin,
         href: contact.linkedinUrl,
@@ -302,11 +306,15 @@ function fetchCmd(): CommandResult {
     lines: [
       text(`${profile.name.toLowerCase().replace(/\s+/g, '')}@aj`, 'accent'),
       text('------------------------------', 'dim'),
-      { kind: 'kv', key: 'ROLE', value: profile.title },
-      { kind: 'kv', key: 'YEARS', value: '4+' },
-      { kind: 'kv', key: 'STACK', value: 'React, Next.js, TypeScript' },
-      { kind: 'kv', key: 'SHELL', value: 'ajsh 1.0' },
-      { kind: 'kv', key: 'STATUS', value: 'open to freelance & full-time' },
+      { kind: 'key-value', key: 'ROLE', value: profile.title },
+      { kind: 'key-value', key: 'YEARS', value: '4+' },
+      { kind: 'key-value', key: 'STACK', value: 'React, Next.js, TypeScript' },
+      { kind: 'key-value', key: 'SHELL', value: 'ajsh 1.0' },
+      {
+        kind: 'key-value',
+        key: 'STATUS',
+        value: 'open to freelance & full-time',
+      },
     ],
   };
 }

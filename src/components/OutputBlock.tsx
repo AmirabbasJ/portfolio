@@ -34,7 +34,7 @@ export function OutputBlock({ lines }: Props) {
               </div>
             );
 
-          case 'kv':
+          case 'key-value':
             return (
               <div className="out-kv" key={i}>
                 <span className="out-kv__k">{line.key}</span>
