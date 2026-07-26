@@ -26,7 +26,7 @@ export interface CommandResult {
   lines: OutputLine[];
   openUrl?: string;
   clear?: boolean;
-  module?: Directory;
+  directory?: Directory;
   shutdown?: boolean;
 }
 
@@ -192,7 +192,7 @@ export function statusLines(): CommandResult {
         text: 'OPEN TO WORK — FREELANCE + FULL-TIME',
       },
     ],
-    module: 'home',
+    directory: 'home',
   };
 }
 
@@ -351,7 +351,7 @@ function cdCmd(args: string[]): CommandResult {
     };
   }
 
-  return { lines: [], module: dir, clear: true };
+  return { lines: [], directory: dir, clear: true };
 }
 
 interface RunCommandOptions {

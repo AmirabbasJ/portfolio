@@ -2,16 +2,16 @@ import type { Directory } from '@modules/terminal';
 
 import { directories } from '@modules/terminal';
 
-interface ModuleNavProps {
+interface DirectoryNavProps {
   active: Directory;
   onSelect: (id: Directory) => void;
 }
 
-export function ModuleNav({ active, onSelect }: ModuleNavProps) {
+export function DirectoryNav({ active, onSelect }: DirectoryNavProps) {
   return (
     <nav className="mod-nav" aria-label="Modules">
       <p className="mod-nav__hint">
-        <span className="tone-dim">SELECT MODULE [← → or click or cd]</span>
+        <span className="tone-dim">SELECT DIRECTORY [← → or click or cd]</span>
       </p>
       <ul className="mod-nav__list">
         {directories.map((dir) => {

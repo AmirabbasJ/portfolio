@@ -20,7 +20,7 @@ import {
   useState,
 } from 'react';
 
-import { ModuleNav } from '../components/ModuleNav';
+import { DirectoryNav } from '../components/DirectoryNav';
 import { OutputBlock } from '../components/OutputBlock';
 import { SystemHeader } from '../components/SystemHeader';
 
@@ -28,14 +28,14 @@ type ScrollLine =
   | { id: number; kind: 'out'; lines: OutputLine[] }
   | { id: number; kind: 'typed'; text: string };
 
-function getModuleFromHash(): Directory | null {
+function getDirectoryFromHash(): Directory | null {
   const fromHash = window.location.hash.replace('#', '') as Directory;
   if (directories.some((d) => d === fromHash) && fromHash !== 'home')
     return fromHash;
   return null;
 }
 
-function moduleSeed(id: Directory): OutputLine[] {
+function directorySeed(id: Directory): OutputLine[] {
   switch (id) {
     case 'home':
       return [
@@ -82,12 +82,12 @@ interface TerminalProps {
 }
 
 export function Terminal({ onShutdown }: TerminalProps) {
-  const [module, setModule] = useState<Directory>(
-    () => getModuleFromHash() ?? 'home'
+  const [directory, setDirectory] = useState<Directory>(
+    () => getDirectoryFromHash() ?? 'home'
   );
 
   const [scroll, setScroll] = useState<ScrollLine[]>(() => [
-    { id: nextId(), kind: 'out', lines: moduleSeed(module) },
+    { id: nextId(), kind: 'out', lines: directorySeed(directory) },
   ]);
 
   const [input, setInput] = useState('');
@@ -132,7 +132,7 @@ export function Terminal({ onShutdown }: TerminalProps) {
         return;
       }
 
-      const matches = getCompletions(p, module);
+      const matches = getCompletions(p, directory);
 
       if (matches.length >= 1) {
         setAutoComplete(matches[0].replace(value.toLowerCase(), '').trim());
@@ -140,7 +140,7 @@ export function Terminal({ onShutdown }: TerminalProps) {
         setAutoComplete('');
       }
     },
-    [module]
+    [directory]
   );
 
   const selectedMatch =
@@ -162,7 +162,7 @@ export function Terminal({ onShutdown }: TerminalProps) {
     }
 
     bottomRef.current?.scrollIntoView({ block: 'end' });
-  }, [scroll, module, autoCompleteMatches.length, selectedMatchIndex]);
+  }, [scroll, directory, autoCompleteMatches.length, selectedMatchIndex]);
 
   const focusInput = useCallback(() => {
     inputRef.current?.focus({ preventScroll: true });
@@ -171,13 +171,13 @@ export function Terminal({ onShutdown }: TerminalProps) {
   useEffect(() => {
     if (window.matchMedia('(hover: none), (pointer: coarse)').matches) return;
     focusInput();
-  }, [focusInput, module]);
+  }, [focusInput, directory]);
 
-  const goModule = useCallback(
+  const goDirectory = useCallback(
     (id: Directory) => {
       stickModeRef.current = 'top';
-      setModule(id);
-      setScroll([{ id: nextId(), kind: 'out', lines: moduleSeed(id) }]);
+      setDirectory(id);
+      setScroll([{ id: nextId(), kind: 'out', lines: directorySeed(id) }]);
       setInputValue('');
       setHistIndex(null);
       window.location.hash = id;
@@ -202,7 +202,7 @@ export function Terminal({ onShutdown }: TerminalProps) {
       const result = runCommand({
         input: value,
         history: nextHistory,
-        currDir: module,
+        currDir: directory,
       });
 
       if (result.shutdown) {
@@ -218,10 +218,10 @@ export function Terminal({ onShutdown }: TerminalProps) {
         return;
       }
 
-      if (result.module && result.clear) {
+      if (result.directory && result.clear) {
         stickModeRef.current = 'top';
-        setModule(result.module);
-        window.location.hash = result.module;
+        setDirectory(result.directory);
+        window.location.hash = result.directory;
         setScroll([
           {
             id: nextId(),
@@ -229,16 +229,18 @@ export function Terminal({ onShutdown }: TerminalProps) {
             lines:
               result.lines.length > 0
                 ? result.lines
-                : moduleSeed(result.module),
+                : directorySeed(result.directory),
           },
         ]);
         setInputValue('');
         return;
       }
 
-      if (result.clear && !result.module) {
+      if (result.clear && !result.directory) {
         stickModeRef.current = 'top';
-        setScroll([{ id: nextId(), kind: 'out', lines: moduleSeed(module) }]);
+        setScroll([
+          { id: nextId(), kind: 'out', lines: directorySeed(directory) },
+        ]);
         setInputValue('');
         return;
       }
@@ -247,9 +249,9 @@ export function Terminal({ onShutdown }: TerminalProps) {
         window.open(result.openUrl, '_blank', 'noopener,noreferrer');
       }
 
-      if (result.module) {
-        setModule(result.module);
-        window.location.hash = result.module;
+      if (result.directory) {
+        setDirectory(result.directory);
+        window.location.hash = result.directory;
       }
 
       stickModeRef.current = 'bottom';
@@ -263,14 +265,14 @@ export function Terminal({ onShutdown }: TerminalProps) {
       setInputValue('');
     },
     // eslint-disable-next-line @eslint-react/exhaustive-deps
-    [history, module, setInputValue]
+    [history, directory, setInputValue]
   );
 
-  const cycleModule = (dir: -1 | 1) => {
-    const idx = directories.findIndex((d) => d === module);
+  const cycleDirectory = (dir: -1 | 1) => {
+    const idx = directories.findIndex((d) => d === directory);
     const nextIndex = mod(idx + dir, 0, directories.length - 1);
     const next = directories[nextIndex];
-    goModule(next);
+    goDirectory(next);
   };
 
   const onKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
@@ -296,7 +298,7 @@ export function Terminal({ onShutdown }: TerminalProps) {
       setAutoComplete('');
       const parts = input.split(/\s+/).map((i) => i.trim().toLowerCase());
       if (parts.length > 2) return;
-      const matches = getCompletions(parts, module);
+      const matches = getCompletions(parts, directory);
 
       if (matches.length === 1) {
         setInputValue(`${matches[0]} `);
@@ -339,13 +341,15 @@ export function Terminal({ onShutdown }: TerminalProps) {
       e.preventDefault();
       setAutoComplete('');
       stickModeRef.current = 'top';
-      setScroll([{ id: nextId(), kind: 'out', lines: moduleSeed(module) }]);
+      setScroll([
+        { id: nextId(), kind: 'out', lines: directorySeed(directory) },
+      ]);
       return;
     }
 
     if (!input && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')) {
       e.preventDefault();
-      cycleModule(e.key === 'ArrowLeft' ? -1 : 1);
+      cycleDirectory(e.key === 'ArrowLeft' ? -1 : 1);
       return;
     }
 
@@ -482,7 +486,7 @@ export function Terminal({ onShutdown }: TerminalProps) {
       </div>
 
       <div className="os-rule" />
-      <ModuleNav active={module} onSelect={goModule} />
+      <DirectoryNav active={directory} onSelect={goDirectory} />
     </div>
   );
 }
