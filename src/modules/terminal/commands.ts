@@ -1,25 +1,10 @@
 import { experience, profile, skillGroups } from '@data';
 
+import type { OutputLine } from './outputLine';
 import type { Directory } from './system';
 
+import { heading, mixed, para, text } from './outputLine';
 import { directories, fileSystem } from './system';
-
-export type OutputTone = 'accent' | 'dim' | 'error' | 'label' | 'warn';
-
-export interface OutputSegment {
-  text: string;
-  tone?: OutputTone;
-}
-
-export type OutputLine =
-  | { kind: 'badge'; text: string }
-  | { kind: 'cmd'; text: string }
-  | { kind: 'heading'; segments: OutputSegment[] }
-  | { kind: 'key-value'; key: string; value: string; href?: string }
-  | { kind: 'mark' }
-  | { kind: 'p'; segments: OutputSegment[] }
-  | { kind: 'text'; segments: OutputSegment[]; gap?: 'lg' }
-  | { kind: 'tip'; text: string };
 
 export interface CommandResult {
   lines: OutputLine[];
@@ -109,22 +94,6 @@ export function getCompletions(partials: string[], currDir: string): string[] {
   return COMMANDS.filter((c) => {
     return c.startsWith(q);
   });
-}
-
-function text(raw: string, tone?: OutputTone, gap?: 'lg'): OutputLine {
-  return { kind: 'text', segments: [{ text: raw, tone }], gap };
-}
-
-function heading(raw: string, tone?: OutputTone): OutputLine {
-  return { kind: 'heading', segments: [{ text: raw, tone }] };
-}
-
-function para(raw: string, tone?: OutputTone): OutputLine {
-  return { kind: 'p', segments: [{ text: raw, tone }] };
-}
-
-function mixed(...segments: OutputSegment[]): OutputLine {
-  return { kind: 'text', segments };
 }
 
 function help(): CommandResult {
@@ -326,7 +295,7 @@ function catCmd(arg: string, curDir: string): CommandResult {
   return content ?? { lines: [text('file not found')] };
 }
 
-function ls(currDir: string): CommandResult {
+function lsCmd(currDir: string): CommandResult {
   const dirFiles = fileSystem[currDir as keyof typeof fileSystem];
 
   return {
@@ -425,7 +394,7 @@ export function runCommand({
     case 'ls':
       return args.length > 0
         ? { lines: [text("ls doesn't work with arguments")] }
-        : ls(currDir);
+        : lsCmd(currDir);
 
     case 'cd':
       return cdCmd(args);
