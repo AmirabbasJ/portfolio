@@ -152,6 +152,7 @@ export function Terminal({ onShutdown }: TerminalProps) {
   }, []);
 
   useEffect(() => {
+    if (window.matchMedia('(hover: none), (pointer: coarse)').matches) return;
     focusInput();
   }, [focusInput, module]);
 
