@@ -520,11 +520,6 @@ html.tv-powered-off #root {
     gap: 0.1rem;
     margin-bottom: 0.45rem;
   }
-
-  .mod-nav__list {
-    flex-direction: column;
-    align-items: flex-start;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
