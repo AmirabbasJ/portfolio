@@ -447,7 +447,7 @@ export function Terminal({ onShutdown }: TerminalProps) {
 
               const p = v.split(/\s+/).map((i) => i.trim().toLowerCase());
 
-              if (p.length > 2) {
+              if (p.length >= 2) {
                 setAutoComplete('');
                 return;
               }
@@ -455,7 +455,7 @@ export function Terminal({ onShutdown }: TerminalProps) {
               const matches = getCompletions(p, module);
 
               if (matches.length >= 1) {
-                setAutoComplete(matches[0].replace(v, '').trim());
+                setAutoComplete(matches[0].replace(v.toLowerCase(), '').trim());
               } else {
                 setAutoComplete('');
               }
