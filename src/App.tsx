@@ -2,8 +2,8 @@ import { useCallback, useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 import { ParallaxBg } from './components/ParallaxBg';
-import { Terminal } from './components/Terminal';
 import './index.css';
+import { Terminal } from './Terminal';
 
 type Phase = 'dead' | 'flash' | 'live';
 

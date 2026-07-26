@@ -8,9 +8,12 @@ import {
   useState,
 } from 'react';
 
-import type { OutputLine } from '../terminal/commands';
-import type { ModuleId } from '../terminal/system';
+import type { OutputLine } from './terminal/commands';
+import type { ModuleId } from './terminal/system';
 
+import { ModuleNav } from './components/ModuleNav';
+import { OutputBlock } from './components/OutputBlock';
+import { SystemHeader } from './components/SystemHeader';
 import {
   aboutCmd,
   contactCmd,
@@ -19,13 +22,10 @@ import {
   runCommand,
   statusLines,
   whoamiLines,
-} from '../terminal/commands';
-import { modules } from '../terminal/system';
-import { nextId } from '../utils/id';
-import { mod } from '../utils/mod';
-import { ModuleNav } from './ModuleNav';
-import { OutputBlock } from './OutputBlock';
-import { SystemHeader } from './SystemHeader';
+} from './terminal/commands';
+import { modules } from './terminal/system';
+import { nextId } from './utils/id';
+import { mod } from './utils/mod';
 
 type ScrollLine =
   | { id: number; kind: 'out'; lines: OutputLine[] }
