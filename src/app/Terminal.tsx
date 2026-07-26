@@ -120,11 +120,6 @@ export function Terminal({ onShutdown }: TerminalProps) {
         inputRef.current?.setSelectionRange(pos, pos);
       });
 
-      if (histIndex !== null) {
-        setHistIndex(null);
-        setDraft(value);
-      }
-
       if (value.trim() === '') {
         setAutoComplete('');
         return;
@@ -145,7 +140,7 @@ export function Terminal({ onShutdown }: TerminalProps) {
         setAutoComplete('');
       }
     },
-    [histIndex, module]
+    [module]
   );
 
   const selectedMatch =
