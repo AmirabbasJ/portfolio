@@ -96,6 +96,7 @@ export function Terminal({ onShutdown }: TerminalProps) {
   ]);
 
   const [input, setInput] = useState('');
+  const [caret, setCaret] = useState(0);
   const [history, setHistory] = useState<string[]>([]);
   const [histIndex, setHistIndex] = useState<number | null>(null);
   const [draft, setDraft] = useState('');
@@ -109,6 +110,21 @@ export function Terminal({ onShutdown }: TerminalProps) {
   const bottomRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const syncCaret = useCallback(() => {
+    const el = inputRef.current;
+    if (!el) return;
+    setCaret(el.selectionStart ?? el.value.length);
+  }, []);
+
+  const setInputValue = useCallback((value: string, caretPos?: number) => {
+    const pos = caretPos ?? value.length;
+    setInput(value);
+    setCaret(pos);
+    requestAnimationFrame(() => {
+      inputRef.current?.setSelectionRange(pos, pos);
+    });
+  }, []);
 
   const selectedMatch =
     selectedMatchIndex == null
@@ -139,21 +155,24 @@ export function Terminal({ onShutdown }: TerminalProps) {
     focusInput();
   }, [focusInput, module]);
 
-  const goModule = useCallback((id: ModuleId) => {
-    stickModeRef.current = 'top';
-    setModule(id);
-    setScroll([{ id: nextId(), kind: 'out', lines: moduleSeed(id) }]);
-    setInput('');
-    setHistIndex(null);
-    window.location.hash = id;
-  }, []);
+  const goModule = useCallback(
+    (id: ModuleId) => {
+      stickModeRef.current = 'top';
+      setModule(id);
+      setScroll([{ id: nextId(), kind: 'out', lines: moduleSeed(id) }]);
+      setInputValue('');
+      setHistIndex(null);
+      window.location.hash = id;
+    },
+    [setInputValue]
+  );
 
   const submit = useCallback(
     (raw: string) => {
       const value = raw.trim();
 
       if (!value.trim()) {
-        setInput('');
+        setInputValue('');
         return;
       }
 
@@ -175,7 +194,7 @@ export function Terminal({ onShutdown }: TerminalProps) {
           { id: nextId(), kind: 'typed', text: value },
           { id: nextId(), kind: 'out', lines: result.lines },
         ]);
-        setInput('');
+        setInputValue('');
         setAutoComplete('');
         setPower('shutting');
         window.setTimeout(() => onShutdown(), 480);
@@ -196,14 +215,14 @@ export function Terminal({ onShutdown }: TerminalProps) {
                 : moduleSeed(result.module),
           },
         ]);
-        setInput('');
+        setInputValue('');
         return;
       }
 
       if (result.clear && !result.module) {
         stickModeRef.current = 'top';
         setScroll([{ id: nextId(), kind: 'out', lines: moduleSeed(module) }]);
-        setInput('');
+        setInputValue('');
         return;
       }
 
@@ -224,10 +243,10 @@ export function Terminal({ onShutdown }: TerminalProps) {
           ? [{ id: nextId(), kind: 'out' as const, lines: result.lines }]
           : []),
       ]);
-      setInput('');
+      setInputValue('');
     },
     // eslint-disable-next-line @eslint-react/exhaustive-deps
-    [history, module]
+    [history, module, setInputValue]
   );
 
   const cycleModule = (dir: -1 | 1) => {
@@ -240,7 +259,7 @@ export function Terminal({ onShutdown }: TerminalProps) {
     if (e.key === 'Enter') {
       if (selectedMatch) {
         e.preventDefault();
-        setInput(`${selectedMatch} `);
+        setInputValue(`${selectedMatch} `);
         setAutoComplete('');
         setAutoCompleteMatches([]);
         setSelectedMatchIndex(null);
@@ -262,7 +281,7 @@ export function Terminal({ onShutdown }: TerminalProps) {
       const matches = getCompletions(parts, module);
 
       if (matches.length === 1) {
-        setInput(`${matches[0]} `);
+        setInputValue(`${matches[0]} `);
       } else if (matches.length > 1) {
         stickModeRef.current = 'bottom';
 
@@ -291,7 +310,7 @@ export function Terminal({ onShutdown }: TerminalProps) {
         ...prev,
         { id: nextId(), kind: 'typed', text: `${input}^C` },
       ]);
-      setInput('');
+      setInputValue('');
       setAutoComplete('');
       setHistIndex(null);
       return;
@@ -318,11 +337,11 @@ export function Terminal({ onShutdown }: TerminalProps) {
         setDraft(input);
         const i = history.length - 1;
         setHistIndex(i);
-        setInput(history[i] ?? '');
+        setInputValue(history[i] ?? '');
       } else if (histIndex > 0) {
         const i = histIndex - 1;
         setHistIndex(i);
-        setInput(history[i] ?? '');
+        setInputValue(history[i] ?? '');
       }
 
       return;
@@ -334,11 +353,23 @@ export function Terminal({ onShutdown }: TerminalProps) {
       if (histIndex < history.length - 1) {
         const i = histIndex + 1;
         setHistIndex(i);
-        setInput(history[i] ?? '');
+        setInputValue(history[i] ?? '');
       } else {
         setHistIndex(null);
-        setInput(draft);
+        setInputValue(draft);
       }
+
+      return;
+    }
+
+    // Let native caret move; sync visual after key settles
+    if (
+      e.key === 'ArrowLeft' ||
+      e.key === 'ArrowRight' ||
+      e.key === 'Home' ||
+      e.key === 'End'
+    ) {
+      requestAnimationFrame(syncCaret);
     }
   };
 
@@ -399,16 +430,28 @@ export function Terminal({ onShutdown }: TerminalProps) {
             disabled={power !== 'on'}
             onChange={(e) => {
               const v = e.target.value;
+              const pos = e.target.selectionStart ?? v.length;
 
               setInput(v);
+              setCaret(pos);
 
               if (histIndex !== null) {
                 setHistIndex(null);
                 setDraft(v);
               }
-              if (v.trim() === '') return;
+
+              if (v.trim() === '') {
+                setAutoComplete('');
+                return;
+              }
+
               const p = v.split(/\s+/).map((i) => i.trim().toLowerCase());
-              if (p.length > 2) return;
+
+              if (p.length > 2) {
+                setAutoComplete('');
+                return;
+              }
+
               const matches = getCompletions(p, module);
 
               if (matches.length >= 1) {
@@ -418,6 +461,9 @@ export function Terminal({ onShutdown }: TerminalProps) {
               }
             }}
             onKeyDown={onKeyDown}
+            onKeyUp={syncCaret}
+            onClick={syncCaret}
+            onSelect={syncCaret}
             spellCheck={false}
             autoCapitalize="off"
             autoCorrect="off"
@@ -427,13 +473,19 @@ export function Terminal({ onShutdown }: TerminalProps) {
           <span className="term-ghost" aria-hidden="true">
             {input ? (
               <>
-                {input}
-                <span className="term-placeholder">{autoComplete}</span>
+                {input.slice(0, Math.min(caret, input.length))}
+                <span className="term-caret" />
+                {input.slice(Math.min(caret, input.length))}
+                {caret >= input.length ? (
+                  <span className="term-placeholder">{autoComplete}</span>
+                ) : null}
               </>
             ) : (
-              <span className="term-placeholder">{placeholder}</span>
+              <>
+                <span className="term-caret" />
+                <span className="term-placeholder">{placeholder}</span>
+              </>
             )}
-            <span className="term-caret" />
           </span>
         </span>
       </div>

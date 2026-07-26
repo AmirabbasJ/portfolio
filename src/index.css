@@ -411,6 +411,8 @@ html.tv-powered-off #root {
 }
 
 .term-ghost {
+  display: flex;
+  align-items: center;
   white-space: pre-wrap;
   word-break: break-word;
   pointer-events: none;
@@ -418,7 +420,6 @@ html.tv-powered-off #root {
 }
 
 .term-placeholder {
-  position: absolute;
   color: var(--dim);
 }
 
@@ -441,10 +442,16 @@ html.tv-powered-off #root {
 
 .term-caret {
   display: inline-block;
-  width: 0.55ch;
-  height: 1.05em;
-  margin-left: 1px;
+  width: 0;
+  height: 1.5em;
   vertical-align: text-bottom;
+}
+
+.term-caret::after {
+  content: '';
+  display: inline-block;
+  width: 1ch;
+  height: 100%;
   background: var(--accent-bright);
   animation: blink 1.05s steps(1) infinite;
 }
@@ -452,7 +459,7 @@ html.tv-powered-off #root {
 @keyframes blink {
   0%,
   49% {
-    opacity: 1;
+    opacity: 0.75;
   }
   50%,
   100% {
