@@ -106,7 +106,6 @@ export function Terminal({ onShutdown }: TerminalProps) {
     null
   );
 
-  const [power, setPower] = useState<Power>('on');
   const bottomRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -197,7 +196,6 @@ export function Terminal({ onShutdown }: TerminalProps) {
         ]);
         setInputValue('');
         setAutoComplete('');
-        setPower('shutting');
         window.setTimeout(() => onShutdown(), 480);
         return;
       }
@@ -427,7 +425,6 @@ export function Terminal({ onShutdown }: TerminalProps) {
             className="term-input"
             value={input}
             placeholder={placeholder}
-            disabled={power !== 'on'}
             onChange={(e) => {
               const v = e.target.value;
               const pos = e.target.selectionStart ?? v.length;
