@@ -1,5 +1,5 @@
 /* eslint-disable @eslint-react/no-array-index-key */
-import type { OutputLine } from '../terminal/commands';
+import type { OutputLine } from '@modules/terminal';
 
 import { AsciiMark } from './AsciiMark';
 

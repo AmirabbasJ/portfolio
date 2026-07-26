@@ -1,4 +1,4 @@
-import asciiArt from '../assets/ascii.txt?raw';
+import asciiArt from '@assets/ascii.txt?raw';
 
 export function AsciiMark() {
   return (

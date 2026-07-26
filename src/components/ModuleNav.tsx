@@ -1,6 +1,6 @@
-import type { ModuleId } from '../terminal/system';
+import type { ModuleId } from '@modules/terminal';
 
-import { modules } from '../terminal/system';
+import { modules } from '@modules/terminal';
 
 interface ModuleNavProps {
   active: ModuleId;

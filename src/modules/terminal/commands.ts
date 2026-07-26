@@ -1,6 +1,7 @@
+import { experience, profile, skillGroups } from '@data';
+
 import type { ModuleId } from './system';
 
-import { experience, profile, skillGroups } from '../data/resume';
 import { modules } from './system';
 
 export type OutputTone = 'accent' | 'dim' | 'error' | 'label' | 'warn';
@@ -242,7 +243,7 @@ export function experienceCmd(args: string[]): CommandResult {
       text(job.company.toUpperCase(), 'accent'),
       text(`${job.role} · ${job.location}`),
       heading(job.period, 'dim'),
-      para(job.summary),
+      text(job.summary),
       heading('TECH', 'dim'),
       text(job.tech.join(' · ')),
       heading('HIGHLIGHTS', 'dim'),

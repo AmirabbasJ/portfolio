@@ -1,5 +1,17 @@
+import type { ModuleId, OutputLine } from '@modules/terminal';
 import type { KeyboardEvent } from 'react';
 
+import {
+  aboutCmd,
+  contactCmd,
+  experienceCmd,
+  getCompletions,
+  modules,
+  runCommand,
+  statusLines,
+  whoamiLines,
+} from '@modules/terminal';
+import { mod, nextId } from '@utils';
 import {
   useCallback,
   useEffect,
@@ -8,24 +20,9 @@ import {
   useState,
 } from 'react';
 
-import type { OutputLine } from './terminal/commands';
-import type { ModuleId } from './terminal/system';
-
-import { ModuleNav } from './components/ModuleNav';
-import { OutputBlock } from './components/OutputBlock';
-import { SystemHeader } from './components/SystemHeader';
-import {
-  aboutCmd,
-  contactCmd,
-  experienceCmd,
-  getCompletions,
-  runCommand,
-  statusLines,
-  whoamiLines,
-} from './terminal/commands';
-import { modules } from './terminal/system';
-import { nextId } from './utils/id';
-import { mod } from './utils/mod';
+import { ModuleNav } from '../components/ModuleNav';
+import { OutputBlock } from '../components/OutputBlock';
+import { SystemHeader } from '../components/SystemHeader';
 
 type ScrollLine =
   | { id: number; kind: 'out'; lines: OutputLine[] }
@@ -77,8 +74,6 @@ function moduleSeed(id: ModuleId): OutputLine[] {
       ];
   }
 }
-
-type Power = 'on' | 'shutting';
 
 const placeholder = 'type a command (try: help)';
 
@@ -298,9 +293,10 @@ export function Terminal({ onShutdown }: TerminalProps) {
 
       return;
     }
-
-    setAutoCompleteMatches([]);
-    setSelectedMatchIndex(null);
+    if (e.key !== 'Shift') {
+      setAutoCompleteMatches([]);
+      setSelectedMatchIndex(null);
+    }
 
     if (e.key === 'c' && e.ctrlKey) {
       e.preventDefault();

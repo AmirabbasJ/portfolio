@@ -1,6 +1,5 @@
+import { formatUptime } from '@modules/terminal';
 import { useEffect, useState } from 'react';
-
-import { formatUptime } from '../terminal/system';
 
 function formatClock(now = new Date()) {
   const date = now
