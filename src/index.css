@@ -205,6 +205,7 @@ html.tv-powered-off #root {
 }
 
 .os-scroll {
+  cursor: default;
   height: 100%;
   overflow-y: auto;
   overflow-anchor: none;
