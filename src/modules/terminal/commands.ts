@@ -18,7 +18,6 @@ export type OutputLine =
   | { kind: 'key-value'; key: string; value: string; href?: string }
   | { kind: 'mark' }
   | { kind: 'p'; segments: OutputSegment[] }
-  | { kind: 'rule' }
   | { kind: 'text'; segments: OutputSegment[]; gap?: 'lg' }
   | { kind: 'tip'; text: string };
 
@@ -452,6 +451,9 @@ export function runCommand({
 
     case 'cat':
       return catCmd(args[0], currDir);
+
+    case 'about':
+      return aboutCmd();
 
     default:
       return {

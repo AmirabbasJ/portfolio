@@ -12,9 +12,6 @@ export function OutputBlock({ lines }: Props) {
     <>
       {lines.map((line, i) => {
         switch (line.kind) {
-          case 'rule':
-            return <div className="out-rule" key={i} />;
-
           case 'mark':
             return <AsciiMark key={i} />;
 
