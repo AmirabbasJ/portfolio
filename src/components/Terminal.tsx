@@ -362,7 +362,6 @@ export function Terminal({ onShutdown }: TerminalProps) {
       return;
     }
 
-    // Let native caret move; sync visual after key settles
     if (
       e.key === 'ArrowLeft' ||
       e.key === 'ArrowRight' ||
