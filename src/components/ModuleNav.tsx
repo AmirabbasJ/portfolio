@@ -1,10 +1,10 @@
-import type { ModuleId } from '@modules/terminal';
+import type { Directory } from '@modules/terminal';
 
-import { modules } from '@modules/terminal';
+import { directories } from '@modules/terminal';
 
 interface ModuleNavProps {
-  active: ModuleId;
-  onSelect: (id: ModuleId) => void;
+  active: Directory;
+  onSelect: (id: Directory) => void;
 }
 
 export function ModuleNav({ active, onSelect }: ModuleNavProps) {
@@ -14,17 +14,17 @@ export function ModuleNav({ active, onSelect }: ModuleNavProps) {
         <span className="tone-dim">SELECT MODULE [← → or click or cd]</span>
       </p>
       <ul className="mod-nav__list">
-        {modules.map((mod) => {
-          const isActive = mod.id === active;
+        {directories.map((dir) => {
+          const isActive = dir === active;
           return (
-            <li key={mod.id}>
+            <li key={dir}>
               <button
                 type="button"
                 className={`mod-nav__item${isActive ? ' is-active' : ''}`}
-                onClick={() => onSelect(mod.id)}
+                onClick={() => onSelect(dir)}
                 aria-current={isActive ? 'page' : undefined}
               >
-                /{mod.label}
+                /{dir.toUpperCase()}
               </button>
             </li>
           );

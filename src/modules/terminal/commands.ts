@@ -1,8 +1,8 @@
 import { experience, profile, skillGroups } from '@data';
 
-import type { ModuleId } from './system';
+import type { Directory } from './system';
 
-import { modules } from './system';
+import { directories, fileSystem } from './system';
 
 export type OutputTone = 'accent' | 'dim' | 'error' | 'label' | 'warn';
 
@@ -26,7 +26,7 @@ export interface CommandResult {
   lines: OutputLine[];
   openUrl?: string;
   clear?: boolean;
-  module?: ModuleId;
+  module?: Directory;
   shutdown?: boolean;
 }
 
@@ -53,26 +53,20 @@ const COMMANDS = [
   'shutdown',
 ].toSorted();
 
-const fileSystem = {
-  home: [{ fileName: 'status.txt', content: statusLines() }],
-  work: [
-    { fileName: 'DROPP.md', content: experienceCmd(['dropp']) },
-    { fileName: 'LINKDENT.md', content: experienceCmd(['linkdent']) },
-    { fileName: 'STARTDONE.md', content: experienceCmd(['startdone']) },
-    { fileName: 'THEPERSA.md', content: experienceCmd(['thepersa']) },
-  ],
-  about: [
-    { fileName: 'about.txt', content: aboutCmd() },
-    { fileName: 'skills.json', content: skillsCmd([]) },
-  ],
-  contact: [{ fileName: 'contact.md', content: contactCmd() }],
+const fileCommandResultMap: Record<string, CommandResult> = {
+  'status.txt': statusLines(),
+  'DROPP.md': experienceCmd(['dropp']),
+  'LINKDENT.md': experienceCmd(['linkdent']),
+  'STARTDONE.md': experienceCmd(['startdone']),
+  'THEPERSA.md': experienceCmd(['thepersa']),
+  'about.txt': aboutCmd(),
+  'skills.json': skillsCmd([]),
+  'contact.md': contactCmd(),
 };
 
 function getCatCompletions(arg: string, currDir: string): string[] {
   const dirFiles = fileSystem[currDir as keyof typeof fileSystem];
-  return dirFiles
-    .filter((f) => f.fileName.toLowerCase().startsWith(arg))
-    .map((f) => f.fileName);
+  return dirFiles.filter((f) => f.toLowerCase().startsWith(arg)).map((f) => f);
 }
 
 function getExpCompletions(arg: string): string[] {
@@ -155,7 +149,7 @@ function help(): CommandResult {
       ),
       {
         kind: 'tip',
-        text: '← → modules when input empty · Tab autocomplete · Ctrl+L clear',
+        text: '← → directories when input empty · Tab autocomplete · Ctrl+L clear',
       },
     ],
   };
@@ -252,7 +246,7 @@ export function experienceCmd(args: string[]): CommandResult {
   };
 }
 
-function skillsCmd(args: string[]): CommandResult {
+export function skillsCmd(args: string[]): CommandResult {
   const query = args.join(' ').trim().toLowerCase();
   const lines: OutputLine[] = [];
 
@@ -320,8 +314,9 @@ function fetchCmd(): CommandResult {
 function catCmd(arg: string, curDir: string): CommandResult {
   const fileName = arg;
   const dirFiles = fileSystem[curDir as keyof typeof fileSystem];
-  const file = dirFiles.find((f) => f.fileName === fileName);
-  return file?.content ?? { lines: [text('file not found')] };
+  const file = dirFiles.find((f) => f === fileName);
+  const content = file ? fileCommandResultMap[file] : null;
+  return content ?? { lines: [text('file not found')] };
 }
 
 function ls(currDir: string): CommandResult {
@@ -330,7 +325,7 @@ function ls(currDir: string): CommandResult {
   return {
     lines: [
       { kind: 'cmd', text: 'ls -la' },
-      ...dirFiles.map((f) => text(`-rw-  ${f.fileName}`)),
+      ...dirFiles.map((f) => text(`-rw-  ${f}`)),
       text(`cd <module> or click the nav below`, 'dim'),
     ],
   };
@@ -345,23 +340,18 @@ function shutdownCmd(): CommandResult {
 
 function cdCmd(args: string[]): CommandResult {
   const target = (args[0] ?? '').replace(/^\//, '').replace(/\/$/, '');
-  const mod = modules.find(
-    (m) =>
-      m.id === target ||
-      m.label.toLowerCase() === target.toLowerCase() ||
-      m.index === target
-  );
+  const dir = directories.find((d) => d.toLowerCase() === target.toLowerCase());
 
-  if (!mod) {
+  if (!dir) {
     return {
       lines: [
         text(`cd: no such module: ${args[0] ?? ''}`, 'error'),
-        text(`modules: ${modules.map((m) => m.id).join(', ')}`, 'dim'),
+        text(`directories: ${directories.join(', ')}`, 'dim'),
       ],
     };
   }
 
-  return { lines: [], module: mod.id, clear: true };
+  return { lines: [], module: dir, clear: true };
 }
 
 interface RunCommandOptions {

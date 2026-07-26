@@ -1,12 +1,12 @@
-import type { ModuleId, OutputLine } from '@modules/terminal';
+import type { Directory, OutputLine } from '@modules/terminal';
 import type { KeyboardEvent } from 'react';
 
 import {
   aboutCmd,
   contactCmd,
+  directories,
   experienceCmd,
   getCompletions,
-  modules,
   runCommand,
   statusLines,
   whoamiLines,
@@ -28,14 +28,14 @@ type ScrollLine =
   | { id: number; kind: 'out'; lines: OutputLine[] }
   | { id: number; kind: 'typed'; text: string };
 
-function getModuleFromHash(): ModuleId | null {
-  const fromHash = window.location.hash.replace('#', '') as ModuleId;
-  if (modules.some((m) => m.id === fromHash) && fromHash !== 'home')
+function getModuleFromHash(): Directory | null {
+  const fromHash = window.location.hash.replace('#', '') as Directory;
+  if (directories.some((d) => d === fromHash) && fromHash !== 'home')
     return fromHash;
   return null;
 }
 
-function moduleSeed(id: ModuleId): OutputLine[] {
+function moduleSeed(id: Directory): OutputLine[] {
   switch (id) {
     case 'home':
       return [
@@ -82,7 +82,7 @@ interface TerminalProps {
 }
 
 export function Terminal({ onShutdown }: TerminalProps) {
-  const [module, setModule] = useState<ModuleId>(
+  const [module, setModule] = useState<Directory>(
     () => getModuleFromHash() ?? 'home'
   );
 
@@ -151,7 +151,7 @@ export function Terminal({ onShutdown }: TerminalProps) {
   }, [focusInput, module]);
 
   const goModule = useCallback(
-    (id: ModuleId) => {
+    (id: Directory) => {
       stickModeRef.current = 'top';
       setModule(id);
       setScroll([{ id: nextId(), kind: 'out', lines: moduleSeed(id) }]);
@@ -244,9 +244,10 @@ export function Terminal({ onShutdown }: TerminalProps) {
   );
 
   const cycleModule = (dir: -1 | 1) => {
-    const idx = modules.findIndex((m) => m.id === module);
-    const next = modules[(idx + dir + modules.length) % modules.length];
-    goModule(next.id);
+    const idx = directories.findIndex((d) => d === module);
+    const nextIndex = mod(idx + dir, 0, directories.length - 1);
+    const next = directories[nextIndex];
+    goModule(next);
   };
 
   const onKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {

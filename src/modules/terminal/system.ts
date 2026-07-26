@@ -1,11 +1,12 @@
-export type ModuleId = 'about' | 'contact' | 'home' | 'work';
+export const fileSystem = {
+  home: ['status.txt'],
+  work: ['DROPP.md', 'LINKDENT.md', 'STARTDONE.md', 'THEPERSA.md'],
+  about: ['about.txt', 'skills.json'],
+  contact: ['contact.md'],
+} as const;
 
-export const modules: { id: ModuleId; label: string; index: string }[] = [
-  { id: 'home', label: 'HOME', index: '01' },
-  { id: 'work', label: 'WORK', index: '02' },
-  { id: 'about', label: 'ABOUT', index: '03' },
-  { id: 'contact', label: 'CONTACT', index: '04' },
-];
+export type Directory = keyof typeof fileSystem;
+export const directories = Object.keys(fileSystem) as Directory[];
 
 export const CAREER_START = new Date('2022-01-01T00:00:00Z');
 
