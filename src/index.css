@@ -101,12 +101,18 @@ html.tv-powered-off #root {
 .parallax-bg__layer {
   position: absolute;
   inset: -10%;
-  background-position: center;
-  background-size: 55%;
-  background-repeat: no-repeat;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   opacity: 0.5;
   transform-style: preserve-3d;
   will-change: transform;
+}
+
+.parallax-bg__video {
+  width: 90%;
+  height: 90%;
+  object-fit: contain;
 }
 
 .parallax-bg__veil {

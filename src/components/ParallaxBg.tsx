@@ -1,17 +1,33 @@
 import { useEffect, useRef } from 'react';
 
-import gif from '../assets/ascii-magic-1.gif';
+import asciiAnimation from '../assets/ascii-animation.mp4';
 
 const MAX_DEG = 10;
 const EASE = 0.08;
 
 export function ParallaxBg() {
   const layerRef = useRef<HTMLDivElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
   const targetRef = useRef({ rx: 0, ry: 0 });
   const currentRef = useRef({ rx: 0, ry: 0 });
 
   useEffect(() => {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const video = videoRef.current;
+    const reduceMotion = window.matchMedia(
+      '(prefers-reduced-motion: reduce)'
+    ).matches;
+
+    if (video) {
+      if (reduceMotion) {
+        video.pause();
+      } else {
+        void video.play().catch(() => {
+          console.error('Failed to play video');
+        });
+      }
+    }
+
+    if (reduceMotion) return;
 
     let raf = 0;
 
@@ -54,11 +70,17 @@ export function ParallaxBg() {
 
   return (
     <div className="parallax-bg" aria-hidden>
-      <div
-        ref={layerRef}
-        className="parallax-bg__layer"
-        style={{ backgroundImage: `url(${gif})` }}
-      />
+      <div ref={layerRef} className="parallax-bg__layer">
+        <video
+          ref={videoRef}
+          className="parallax-bg__video"
+          src={asciiAnimation}
+          autoPlay
+          muted
+          loop
+          playsInline
+        />
+      </div>
       <div className="parallax-bg__veil" />
     </div>
   );
