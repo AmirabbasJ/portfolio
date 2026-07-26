@@ -111,14 +111,42 @@ export function Terminal({ onShutdown }: TerminalProps) {
     setCaret(el.selectionStart ?? el.value.length);
   }, []);
 
-  const setInputValue = useCallback((value: string, caretPos?: number) => {
-    const pos = caretPos ?? value.length;
-    setInput(value);
-    setCaret(pos);
-    requestAnimationFrame(() => {
-      inputRef.current?.setSelectionRange(pos, pos);
-    });
-  }, []);
+  const setInputValue = useCallback(
+    (value: string, caretPos?: number) => {
+      const pos = caretPos ?? value.length;
+      setInput(value);
+      setCaret(pos);
+      requestAnimationFrame(() => {
+        inputRef.current?.setSelectionRange(pos, pos);
+      });
+
+      if (histIndex !== null) {
+        setHistIndex(null);
+        setDraft(value);
+      }
+
+      if (value.trim() === '') {
+        setAutoComplete('');
+        return;
+      }
+
+      const p = value.split(/\s+/).map((i) => i.trim().toLowerCase());
+
+      if (p.length > 2) {
+        setAutoComplete('');
+        return;
+      }
+
+      const matches = getCompletions(p, module);
+
+      if (matches.length >= 1) {
+        setAutoComplete(matches[0].replace(value.toLowerCase(), '').trim());
+      } else {
+        setAutoComplete('');
+      }
+    },
+    [histIndex, module]
+  );
 
   const selectedMatch =
     selectedMatchIndex == null
@@ -426,33 +454,7 @@ export function Terminal({ onShutdown }: TerminalProps) {
               const v = e.target.value;
               const pos = e.target.selectionStart ?? v.length;
 
-              setInput(v.trimStart());
-              setCaret(pos);
-
-              if (histIndex !== null) {
-                setHistIndex(null);
-                setDraft(v);
-              }
-
-              if (v.trim() === '') {
-                setAutoComplete('');
-                return;
-              }
-
-              const p = v.split(/\s+/).map((i) => i.trim().toLowerCase());
-
-              if (p.length > 2) {
-                setAutoComplete('');
-                return;
-              }
-
-              const matches = getCompletions(p, module);
-
-              if (matches.length >= 1) {
-                setAutoComplete(matches[0].replace(v.toLowerCase(), '').trim());
-              } else {
-                setAutoComplete('');
-              }
+              setInputValue(v.trimStart(), pos);
             }}
             onKeyDown={onKeyDown}
             onKeyUp={syncCaret}
