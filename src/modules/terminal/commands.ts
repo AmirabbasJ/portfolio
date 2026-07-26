@@ -127,7 +127,6 @@ export function statusCmd(): CommandResult {
         text: 'OPEN TO WORK — FREELANCE + FULL-TIME',
       },
     ],
-    directory: 'home',
   };
 }
 
