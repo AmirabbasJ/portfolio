@@ -37,8 +37,17 @@ export const COMMANDS = [
   'shutdown',
 ].toSorted();
 
+function historyCmd(history: string[]): CommandResult {
+  return {
+    lines:
+      history.length === 0
+        ? [text('(empty)', 'dim')]
+        : history.map((h, i) => text(`  ${i + 1}  ${h}`)),
+  };
+}
+
 const fileCommandResultMap: Record<string, CommandResult> = {
-  'status.txt': statusLines(),
+  'status.txt': statusCmd(),
   'DROPP.md': experienceCmd(['dropp']),
   'LINKDENT.md': experienceCmd(['linkdent']),
   'STARTDONE.md': experienceCmd(['startdone']),
@@ -48,7 +57,7 @@ const fileCommandResultMap: Record<string, CommandResult> = {
   'contact.md': contactCmd(),
 };
 
-function help(): CommandResult {
+function helpCmd(): CommandResult {
   return {
     lines: [
       text('Available commands', 'dim'),
@@ -81,23 +90,25 @@ export function aboutCmd(): CommandResult {
   };
 }
 
-export function whoamiLines(): OutputLine[] {
-  return [
-    mixed(
-      { text: '  Frontend engineer who ships. ' },
-      { text: profile.name, tone: 'accent' },
-      { text: ' — React & Next.js for 4+ years.' }
-    ),
-    text(
-      '  Building multi-tenant platforms, health dashboards, and production admin systems end-to-end.'
-    ),
-    text(
-      '  Currently freelancing on LinkDent — a B2B dental platform for clinics & practitioners.'
-    ),
-  ];
+export function whoamiCmd(): CommandResult {
+  return {
+    lines: [
+      mixed(
+        { text: '  Frontend engineer who ships. ' },
+        { text: profile.name, tone: 'accent' },
+        { text: ' — React & Next.js for 4+ years.' }
+      ),
+      text(
+        '  Building multi-tenant platforms, health dashboards, and production admin systems end-to-end.'
+      ),
+      text(
+        '  Currently freelancing on LinkDent — a B2B dental platform for clinics & practitioners.'
+      ),
+    ],
+  };
 }
 
-export function statusLines(): CommandResult {
+export function statusCmd(): CommandResult {
   return {
     lines: [
       {
@@ -221,7 +232,21 @@ export function contactCmd(): CommandResult {
   };
 }
 
-function fetchCmd(): CommandResult {
+function linkedinCmd(): CommandResult {
+  return {
+    lines: [text(`Opening ${profile.contact.linkedinUrl} …`, 'dim')],
+    openUrl: profile.contact.linkedinUrl,
+  };
+}
+
+function githubCmd(): CommandResult {
+  return {
+    lines: [text(`Opening ${profile.contact.githubUrl} …`, 'dim')],
+    openUrl: profile.contact.githubUrl,
+  };
+}
+
+function infoCmd(): CommandResult {
   return {
     lines: [
       text(`${profile.name.toLowerCase().replace(/\s+/g, '')}@aj`, 'accent'),
@@ -303,7 +328,7 @@ export function runCommand({
       return shutdownCmd();
 
     case 'help':
-      return help();
+      return helpCmd();
 
     case 'experience':
 
@@ -314,7 +339,7 @@ export function runCommand({
       return contactCmd();
 
     case 'whoami':
-      return { lines: whoamiLines() };
+      return whoamiCmd();
 
     case 'skills':
 
@@ -322,26 +347,20 @@ export function runCommand({
       return skillsCmd(args);
 
     case 'status':
-      return { lines: statusLines().lines };
+      return statusCmd();
 
     case 'github':
 
     case 'gh':
-      return {
-        lines: [text(`Opening ${profile.contact.githubUrl} …`, 'dim')],
-        openUrl: profile.contact.githubUrl,
-      };
+      return githubCmd();
 
     case 'linkedin':
 
     case 'li':
-      return {
-        lines: [text(`Opening ${profile.contact.linkedinUrl} …`, 'dim')],
-        openUrl: profile.contact.linkedinUrl,
-      };
+      return linkedinCmd();
 
     case 'info':
-      return fetchCmd();
+      return infoCmd();
 
     case 'ls':
       return args.length > 0
@@ -357,18 +376,7 @@ export function runCommand({
       return { lines: [], clear: true };
 
     case 'history':
-      return {
-        lines:
-          history.length === 0
-            ? [text('(empty)', 'dim')]
-            : history.map((h, i) => text(`  ${i + 1}  ${h}`)),
-      };
-
-    case 'echo':
-      return { lines: [text(args.join(' '))] };
-
-    case 'sudo':
-      return { lines: [text('permission denied', 'error')] };
+      return historyCmd(history);
 
     case 'cat':
       return catCmd(args[0], currDir);

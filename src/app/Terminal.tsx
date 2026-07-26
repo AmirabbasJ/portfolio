@@ -8,8 +8,8 @@ import {
   experienceCmd,
   getCompletions,
   runCommand,
-  statusLines,
-  whoamiLines,
+  statusCmd,
+  whoamiCmd,
 } from '@modules/terminal';
 import { mod, nextId } from '@utils';
 import {
@@ -40,9 +40,9 @@ function directorySeed(id: Directory): OutputLine[] {
     case 'home':
       return [
         { kind: 'mark' },
-        ...whoamiLines(),
+        ...whoamiCmd().lines,
         { kind: 'cmd', text: 'cat status.txt' },
-        ...statusLines().lines,
+        ...statusCmd().lines,
       ];
 
     case 'work': {
