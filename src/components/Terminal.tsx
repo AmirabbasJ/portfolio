@@ -432,7 +432,7 @@ export function Terminal({ onShutdown }: TerminalProps) {
               const v = e.target.value;
               const pos = e.target.selectionStart ?? v.length;
 
-              setInput(v);
+              setInput(v.trimStart());
               setCaret(pos);
 
               if (histIndex !== null) {
