@@ -320,7 +320,8 @@ export function runCommand({
   const trimmed = input.trim();
   if (!trimmed) return { lines: [] };
   const [rawName, ...args] = trimmed.split(/\s+/);
-  const name = rawName.toLowerCase();
+
+  const name = rawName!.toLowerCase();
 
   switch (name) {
     case 'shutdown':
@@ -378,7 +379,9 @@ export function runCommand({
       return historyCmd(history);
 
     case 'cat':
-      return catCmd(args[0], currDir);
+      return args.length < 0
+        ? { lines: [text("cat doesn't work without arguments")] }
+        : catCmd(args[0]!, currDir);
 
     case 'about':
       return aboutCmd();

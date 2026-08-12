@@ -135,7 +135,7 @@ export function Terminal({ onShutdown }: TerminalProps) {
       const matches = getCompletions(p, directory);
 
       if (matches.length >= 1) {
-        setAutoComplete(matches[0].replace(value.toLowerCase(), '').trim());
+        setAutoComplete(matches[0]!.replace(value.toLowerCase(), '').trim());
       } else {
         setAutoComplete('');
       }
@@ -271,7 +271,7 @@ export function Terminal({ onShutdown }: TerminalProps) {
   const cycleDirectory = (dir: -1 | 1) => {
     const idx = directories.findIndex((d) => d === directory);
     const nextIndex = mod(idx + dir, 0, directories.length - 1);
-    const next = directories[nextIndex];
+    const next = directories[nextIndex]!;
     goDirectory(next);
   };
 
@@ -301,7 +301,7 @@ export function Terminal({ onShutdown }: TerminalProps) {
       const matches = getCompletions(parts, directory);
 
       if (matches.length === 1) {
-        setInputValue(`${matches[0]} `);
+        setInputValue(`${matches[0]!} `);
       } else if (matches.length > 1) {
         stickModeRef.current = 'bottom';
 
