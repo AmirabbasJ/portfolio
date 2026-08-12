@@ -3,6 +3,7 @@ import { experience, profile, skillGroups } from '@data';
 import type { OutputLine } from './outputLine';
 import type { Directory } from './system';
 
+import { normalizePath } from '../../utils/normalizePath';
 import { heading, mixed, para, text } from './outputLine';
 import { directories, fileSystem } from './system';
 
@@ -264,8 +265,15 @@ function infoCmd(): CommandResult {
 }
 
 function catCmd(arg: string, curDir: string): CommandResult {
-  const fileName = arg;
-  const dirFiles = fileSystem[curDir as keyof typeof fileSystem];
+  const paths = normalizePath(arg)
+    .split('/')
+    .filter((p) => p !== '');
+
+  if (paths.length === 0) return { lines: [text('file not found')] };
+
+  const fileName = paths.length === 1 ? paths[0]! : paths[1];
+  const dir = paths.length === 1 ? curDir : paths[0]!;
+  const dirFiles = fileSystem[dir as keyof typeof fileSystem];
   const file = dirFiles.find((f) => f === fileName);
   const content = file ? fileCommandResultMap[file] : null;
   return content ?? { lines: [text('file not found')] };

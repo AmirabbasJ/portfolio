@@ -281,7 +281,7 @@ export function Terminal({ onShutdown }: TerminalProps) {
     if (e.key === 'Enter') {
       if (selectedMatch) {
         e.preventDefault();
-        setInputValue(`${selectedMatch} `);
+        setInputValue(selectedMatch);
         setAutoComplete('');
         setAutoCompleteMatches([]);
         setSelectedMatchIndex(null);
@@ -303,7 +303,7 @@ export function Terminal({ onShutdown }: TerminalProps) {
       const matches = getCompletions(parts, directory);
 
       if (matches.length === 1) {
-        setInputValue(`${matches[0]!} `);
+        setInputValue(matches[0]!);
       } else if (matches.length > 1) {
         stickModeRef.current = 'bottom';
 

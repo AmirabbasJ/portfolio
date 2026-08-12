@@ -1,10 +1,31 @@
+import type { Directory } from './system';
+
 import { skillGroups } from '../../data';
+import { normalizePath } from '../../utils/normalizePath';
 import { COMMANDS } from './commands';
 import { fileSystem } from './system';
 
+function matchFiles(dir: string, prefix: string): string[] {
+  if (!(dir in fileSystem)) return [];
+
+  const files: readonly string[] = fileSystem[dir as Directory];
+  return files.filter((f) => f.toLowerCase().startsWith(prefix.toLowerCase()));
+}
+
 function getCatCompletions(arg: string, currDir: string): string[] {
-  const dirFiles = fileSystem[currDir as keyof typeof fileSystem];
-  return dirFiles.filter((f) => f.toLowerCase().startsWith(arg)).map((f) => f);
+  const path = normalizePath(arg);
+
+  if (!path.startsWith('/')) return matchFiles(currDir, path);
+
+  const [dirName = '', fileName] = path.slice(1).split('/');
+
+  if (dirName === '' || (fileName == null && !arg.endsWith('/')))
+    return getCdCompletions(`/${dirName}`);
+
+  const dir = getCdCompletions(`/${dirName}`)[0];
+  if (!dir) return [];
+
+  return matchFiles(dir.slice(1), fileName ?? '').map((f) => `${dir}/${f}`);
 }
 
 function getExpCompletions(arg: string): string[] {
