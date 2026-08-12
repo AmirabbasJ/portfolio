@@ -135,7 +135,9 @@ export function Terminal({ onShutdown }: TerminalProps) {
       const matches = getCompletions(p, directory);
 
       if (matches.length >= 1) {
-        setAutoComplete(matches[0]!.replace(value.toLowerCase(), '').trim());
+        setAutoComplete(
+          matches[0]!.replace(new RegExp(value.toLowerCase(), 'i'), '').trim()
+        );
       } else {
         setAutoComplete('');
       }
