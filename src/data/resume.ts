@@ -2,7 +2,7 @@ export const profile = {
   name: 'Amirabbas Jalali',
   title: 'Frontend Engineer',
   summary:
-    'Front-end engineer with 4+ years of experience specializing in React and Next.js. I enjoy turning ideas into polished, maintainable applications and exploring the technologies that help solve real-world problems effectively.',
+    'Frontend engineer with 4+ years of experience specializing in React and Next.js. I enjoy turning ideas into polished, maintainable applications and exploring the technologies that help solve real-world problems effectively.',
   contact: {
     email: 'amirabbasjalali82@gmail.com',
     github: 'AmirabbasJ',
@@ -24,12 +24,12 @@ export interface Experience {
 
 export const experience: Experience[] = [
   {
-    company: 'Linkdent',
+    company: 'Tandartspraktijk Westeinde',
     location: 'Netherlands',
-    role: 'Full-Stack Engineer (Freelance)',
+    role: 'Full-Stack Engineer',
     period: 'January 2026 — Present',
     summary:
-      'Independently designed and developed a full-stack B2B platform from concept to production, collaborating directly with stakeholders to deliver scalable business solutions.',
+      'Designed and launched a full-stack B2B platform from concept to production, now serving 500+ users across Administrators, Clinic Owners, and Dentists.',
     tech: [
       'Next.js',
       'React',
@@ -39,10 +39,10 @@ export const experience: Experience[] = [
       'Supabase',
     ],
     highlights: [
-      'Architected and developed a multi-tenant B2B platform for dental clinics, practitioners, and administrators from the ground up.',
-      'Designed and implemented the complete system architecture, including the frontend, backend, database schema, authentication, and role-based access control.',
-      'Collaborated closely with the client throughout the project to refine business requirements, propose technical solutions, and translate evolving ideas into production-ready features.',
-      'Built secure dashboards for Administrators, Clinic Owners, and Dentists, supporting product ordering, patient management, real-time messaging, and billing workflows.',
+      'Architected the frontend, backend, database schema, authentication, and role-based access control for a multi-role platform serving dental professionals.',
+      'Built 4 core modules covering product ordering, patient management, real-time messaging, and billing workflows.',
+      'Collaborated directly with stakeholders across 10+ major feature iterations, translating evolving requirements into production-ready solutions.',
+      'Developed role-specific dashboards for Administrators, Clinic Owners, and Dentists, translating complex business workflows into intuitive interfaces.',
       'Took ownership of the entire development lifecycle, independently planning features, prioritizing implementation, and delivering milestones on schedule.',
       'Balanced technical decisions with business needs, ensuring the platform remained scalable, maintainable, and aligned with client expectations.',
     ],
@@ -53,7 +53,7 @@ export const experience: Experience[] = [
     role: 'Frontend Engineer',
     period: 'May 2025 — January 2026',
     summary:
-      'Developed and enhanced a healthcare administration platform, collaborating with cross-functional teams to deliver scalable, user-focused solutions.',
+      'Engineered and scaled a healthcare administration platform, collaborating with cross-functional teams to deliver scalable, user-focused solutions.',
     tech: [
       'React',
       'TypeScript',
@@ -63,9 +63,9 @@ export const experience: Experience[] = [
       'AI Integration',
     ],
     highlights: [
-      'Developed core features for a healthcare platform used by medical professionals to monitor patient health and daily routines.',
-      'Refactored AI-generated frontend code into a scalable, maintainable React application using reusable components and engineering best practices.',
-      'Collaborated closely with backend engineers, designers, and product stakeholders to deliver intuitive, data-driven dashboards.',
+      'Built and shipped core features for a healthcare platform used by medical professionals to monitor patient health and daily routines.',
+      'Refactored an AI-assisted frontend into a scalable React architecture with reusable components and consistent engineering patterns.',
+      'Orchestrated the delivery of user-centric, data-driven dashboards by aligning with backend engineers, designers, and product stakeholders.',
       'Contributed to technical discussions, feature planning, and code reviews to maintain consistency and code quality across the project.',
     ],
   },
@@ -97,7 +97,7 @@ export const experience: Experience[] = [
     ],
     highlights: [
       'Led frontend development across multiple client projects, delivering scalable web applications and admin dashboards for diverse business domains.',
-      'Collaborated with designers, backend engineers, and project managers to deliver high-quality features within tight deadlines.',
+      'Coordinated cross-functional delivery with designers, backend engineers, and project managers to ship high-quality features within tight deadlines.',
       'Mentored a junior frontend developer through onboarding, code reviews, and day-to-day technical guidance, helping them quickly become productive and align with team best practices.',
       'Authored technical documentation and onboarding guides to improve knowledge sharing and reduce ramp-up time for new team members.',
       'Balanced multiple concurrent projects while maintaining code quality, performance, and delivery timelines.',
@@ -122,10 +122,10 @@ export const experience: Experience[] = [
     ],
     highlights: [
       'Orchestrated the integration of the Next.js framework, enabling efficient server-side rendering and seamless routing, resulting in a reduction in page load time and an increase in search engine rankings.',
-      'Developed responsive websites for clients across multiple industries using React and Next.js.',
+      'Designed and delivered responsive websites for clients across multiple industries using React.',
       'Worked closely with designers to translate UI/UX concepts into polished, production-ready user interfaces.',
       'Optimized website performance and SEO through server-side rendering and frontend best practices.',
-      'Collaborated across multiple client projects, adapting quickly to different business requirements and timelines.',
+      'Drove delivery across multiple client projects, adapting solutions to diverse business requirements while consistently meeting evolving timelines.',
     ],
   },
 ];
@@ -137,7 +137,7 @@ export const skillGroups = [
   },
   {
     label: 'Frameworks',
-    items: ['React', 'Next.js'],
+    items: ['React', 'Next.js', 'TanStack Start'],
   },
   {
     label: 'UI & Styling',

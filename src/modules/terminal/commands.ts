@@ -50,7 +50,7 @@ function historyCmd(history: string[]): CommandResult {
 const fileCommandResultMap: Record<string, CommandResult> = {
   'status.txt': statusCmd(),
   'DROPP.md': experienceCmd(['dropp']),
-  'LINKDENT.md': experienceCmd(['linkdent']),
+  'WESTEINDE.md': experienceCmd(['westeinde']),
   'STARTDONE.md': experienceCmd(['startdone']),
   'THEPERSA.md': experienceCmd(['thepersa']),
   'about.txt': aboutCmd(),
@@ -103,7 +103,7 @@ export function whoamiCmd(): CommandResult {
         '  Building multi-tenant platforms, health dashboards, and production admin systems end-to-end.'
       ),
       text(
-        '  Currently freelancing on LinkDent — a B2B dental platform for clinics & practitioners.'
+        '  Currently at Tandartspraktijk Westeinde — maintaining LinkDent, a B2B dental platform for clinics & practitioners.'
       ),
     ],
   };

@@ -1,6 +1,6 @@
 export const fileSystem = {
   home: ['status.txt'],
-  work: ['DROPP.md', 'LINKDENT.md', 'STARTDONE.md', 'THEPERSA.md'],
+  work: ['DROPP.md', 'WESTEINDE.md', 'STARTDONE.md', 'THEPERSA.md'],
   about: ['about.txt', 'skills.json'],
   contact: ['contact.md'],
 } as const;
